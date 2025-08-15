@@ -1,0 +1,36 @@
+# Backend build & Maven
+pull-up-backend/target/
+pull-up-backend/.mvn/wrapper/maven-wrapper.jar
+!pull-up-backend/**/src/main/**/target/
+!pull-up-backend/**/src/test/**/target/
+
+# IDE / Eclipse / STS
+pull-up-backend/.classpath
+pull-up-backend/.factorypath
+pull-up-backend/.project
+pull-up-backend/.settings
+pull-up-backend/.springBeans
+pull-up-backend/.sts4-cache
+
+# IntelliJ IDEA
+pull-up-backend/.idea
+pull-up-backend/*.iws
+pull-up-backend/*.iml
+pull-up-backend/*.ipr
+
+# NetBeans
+pull-up-backend/nbproject/private/
+pull-up-backend/nbbuild/
+pull-up-backend/dist/
+pull-up-backend/.nb-gradle/
+pull-up-backend/build/
+!pull-up-backend/**/src/main/**/build/
+!pull-up-backend/**/src/test/**/build/
+
+# VS Code
+.vscode/
+
+# Env
+*.env
+**/*.env
+pull-up-backend/.env
