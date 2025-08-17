@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
@@ -14,6 +15,7 @@ import java.time.Instant;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@CompoundIndex(name = "unique_name_event", def = "{'name': 1, 'eventId': 1}", unique = true)
 public class User {
     @Id
     private ObjectId id;
@@ -25,8 +27,11 @@ public class User {
     @CreatedDate
     private Instant createdAt;
 
-    public User(String name, String passwordHash) {
+    private ObjectId eventId;
+
+    public User(String name, String passwordHash, ObjectId eventId) {
         this.name = name;
         this.passwordHash = passwordHash;
+        this.eventId = eventId;
     }
 }

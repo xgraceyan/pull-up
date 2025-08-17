@@ -33,7 +33,7 @@ public class UserController {
 
     @PostMapping("/create")
     public ResponseEntity<User> createUser(@RequestBody Map<String, String> payload) {
-        return new ResponseEntity<>(userService.createUser(payload.get("name"), payload.get("passwordRaw"), payload.get("eventId")), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.createUser(payload.get("name"), payload.get("passwordRaw"), new ObjectId(payload.get("eventId"))), HttpStatus.CREATED);
     }
 
     @ExceptionHandler(UserCreateException.class)

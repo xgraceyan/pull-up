@@ -1,12 +1,12 @@
 package me.graceyan.pull_up_backend.service;
 
-import com.mongodb.DuplicateKeyException;
 import lombok.RequiredArgsConstructor;
 import me.graceyan.pull_up_backend.exception.UserCreateException;
 import me.graceyan.pull_up_backend.model.Event;
 import me.graceyan.pull_up_backend.model.User;
 import me.graceyan.pull_up_backend.repository.UserRepository;
 import org.bson.types.ObjectId;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
@@ -32,12 +32,12 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public User createUser(String name, String passwordRaw, String eventId) {
+    public User createUser(String name, String passwordRaw, ObjectId eventId) {
         try {
-            User user = userRepository.insert(new User(name, passwordEncoder.encode(passwordRaw)));
+            User user = userRepository.insert(new User(name, passwordEncoder.encode(passwordRaw), eventId));
             mongoTemplate.update(Event.class)
                     .matching(Criteria.where("_id").is(eventId))
-                    .apply(new Update().push("userIds").value(user))
+                    .apply(new Update().addToSet("userIds").value(user))
                     .first();
             return user;
         } catch(DuplicateKeyException e) {
