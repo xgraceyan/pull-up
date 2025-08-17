@@ -9,7 +9,10 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
+import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Document(collection = "events")
@@ -30,15 +33,15 @@ public class Event {
 
     private String timezone; // Default timezone
 
-    private List<Integer> excludeDaysOfWeek;
+    private List<DayOfWeek> excludeDaysOfWeek;
 
-    private String startTime; // "14:30"
+    private LocalTime startTime;
 
-    private String endTime;
+    private LocalTime endTime;
 
-    private String startDate; // "2025-08-15"
+    private LocalDate startDate; // "2025-08-15"
 
-    private String endDate;
+    private LocalDate endDate;
 
     @CreatedDate
     private Instant createdAt;
