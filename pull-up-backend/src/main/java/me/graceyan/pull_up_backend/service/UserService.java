@@ -28,7 +28,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Optional<User> getById(@PathVariable ObjectId id) {
+    public Optional<User> getById(ObjectId id) {
         return userRepository.findById(id);
     }
 
