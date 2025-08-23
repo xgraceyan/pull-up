@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
@@ -23,11 +24,13 @@ public class Event {
     @Id
     private ObjectId id;
 
+    @Indexed(unique = true)
     private String publicId;
 
-    private String name;
-
+    @Indexed(unique = true)
     private String urlAlias; // publicId by default
+
+    private String name;
 
     private String type; // Weekly, DayTime, Day Only
 
@@ -48,4 +51,21 @@ public class Event {
 
     @DocumentReference
     private List<User> userIds;
+
+    public Event(
+            String publicId, String urlAlias, String name, String type,
+            String timezone, List<DayOfWeek> excludeDaysOfWeek, LocalTime startTime, LocalTime endTime,
+            LocalDate startDate, LocalDate endDate)
+    {
+        this.publicId = publicId;
+        this.urlAlias = urlAlias;
+        this.name = name;
+        this.type = type;
+        this.timezone = timezone;
+        this.excludeDaysOfWeek = excludeDaysOfWeek;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 }
