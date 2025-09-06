@@ -2,9 +2,9 @@ package me.graceyan.pull_up_backend.web;
 
 import lombok.RequiredArgsConstructor;
 import me.graceyan.pull_up_backend.model.TimeSlot;
+import me.graceyan.pull_up_backend.request.TimeSlotRequest;
 import me.graceyan.pull_up_backend.service.TimeSlotService;
 import org.bson.types.ObjectId;
-import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -25,27 +24,51 @@ public class TimeSlotController {
     private final TimeSlotService timeSlotService;
 
     @GetMapping("/event/{eventId}")
-    public ResponseEntity<Optional<List<TimeSlot>>> getAllByEventId(@PathVariable ObjectId eventId) {
+    public ResponseEntity<List<TimeSlot>> getAllByEventId(@PathVariable ObjectId eventId) {
         return new ResponseEntity<>(timeSlotService.getAllByEventId(eventId), HttpStatus.OK);
     }
 
     @GetMapping("/event/{eventId}/user/{userId}")
-    public ResponseEntity<Optional<List<TimeSlot>>> getAllByEventAndUserId(@PathVariable ObjectId eventId, @PathVariable ObjectId userId) {
+    public ResponseEntity<List<TimeSlot>> getAllByEventAndUserId(@PathVariable ObjectId eventId, @PathVariable ObjectId userId) {
         return new ResponseEntity<>(timeSlotService.getAllByEventAndUserId(eventId, userId), HttpStatus.OK);
     }
 
+    @GetMapping("/event/{eventId}/user/{userId}/date")
+    public ResponseEntity<List<TimeSlot>> getByDate(
+            @PathVariable ObjectId eventId, @PathVariable ObjectId userId,
+            @RequestParam LocalDate date
+    ) {
+        return new ResponseEntity<>(timeSlotService.getByDate(eventId, userId, date), HttpStatus.OK);
+    }
+
+    @GetMapping("/event/{eventId}/user/{userId}/datetime")
+    public ResponseEntity<List<TimeSlot>> getByDateTime(
+            @PathVariable ObjectId eventId, @PathVariable ObjectId userId,
+            @RequestParam LocalDate date, @RequestParam LocalTime startTime, @RequestParam LocalTime endTime
+    ) {
+        return new ResponseEntity<>(timeSlotService.getByDateTime(eventId, userId, date, startTime, endTime), HttpStatus.OK);
+    }
+
+    @GetMapping("/event/{eventId}/user/{userId}/weekdaytime")
+    public ResponseEntity<List<TimeSlot>> getByWeekDayTime(
+            @PathVariable ObjectId eventId, @PathVariable ObjectId userId,
+            @RequestParam DayOfWeek weekDay, @RequestParam LocalTime startTime, @RequestParam LocalTime endTime
+    ) {
+        return new ResponseEntity<>(timeSlotService.getByWeekDayTime(eventId, userId, weekDay, startTime, endTime), HttpStatus.OK);
+    }
+
     @PostMapping("/create")
-    public ResponseEntity<List<TimeSlot>> createTimeSlots(@RequestBody List<Map<String, String>> payload) {
+    public ResponseEntity<List<TimeSlot>> createTimeSlots(@RequestBody List<TimeSlotRequest> timeSlotRequests) {
         List<TimeSlot> timeSlots = new ArrayList<>();
-        for(Map<String, String> entry : payload) {
+        for(TimeSlotRequest req : timeSlotRequests) {
             TimeSlot ts = new TimeSlot(
-                    new ObjectId(entry.get("eventId")),
-                    new ObjectId(entry.get("userId")),
-                    LocalTime.parse(entry.get("startTime")),
-                    LocalTime.parse(entry.get("endTime")),
-                    LocalDate.parse(entry.get("date")),
-                    DayOfWeek.valueOf(entry.get("weekDay")),
-                    entry.get("status")
+                    req.getEventId(),
+                    req.getUserId(),
+                    req.getStartTime(),
+                    req.getEndTime(),
+                    req.getDate(),
+                    req.getWeekDay(),
+                    req.getStatus()
             );
             timeSlots.add(ts);
         }
@@ -58,4 +81,6 @@ public class TimeSlotController {
         List<ObjectId> timeSlotIds = idPayload.stream().map(ObjectId::new).toList();
         return new ResponseEntity<>(timeSlotService.deleteTimeSlots(timeSlotIds), HttpStatus.OK);
     }
+
+
 }

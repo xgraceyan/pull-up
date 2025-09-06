@@ -25,23 +25,23 @@ public class TimeSlotService {
     private final TimeSlotRepository timeSlotRepository;
     private final MongoTemplate mongoTemplate;
 
-    public Optional<List<TimeSlot>> getAllByEventId(ObjectId eventId) {
+    public List<TimeSlot> getAllByEventId(ObjectId eventId) {
         return timeSlotRepository.findTimeSlotsByEventId(eventId);
     }
 
-    public Optional<List<TimeSlot>> getAllByEventAndUserId(ObjectId eventId, ObjectId userId) {
+    public List<TimeSlot> getAllByEventAndUserId(ObjectId eventId, ObjectId userId) {
         return timeSlotRepository.findTimeSlotsByEventIdAndUserId(eventId, userId);
     }
 
-    public Optional<List<TimeSlot>> getByDate(ObjectId eventId, ObjectId userId, LocalDate date) {
+    public List<TimeSlot> getByDate(ObjectId eventId, ObjectId userId, LocalDate date) {
         return timeSlotRepository.findTimeSlotsByDate(eventId, userId, date);
     }
 
-    public Optional<List<TimeSlot>> getByDateTime(ObjectId eventId, ObjectId userId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+    public List<TimeSlot> getByDateTime(ObjectId eventId, ObjectId userId, LocalDate date, LocalTime startTime, LocalTime endTime) {
         return timeSlotRepository.findTimeSlotsByDateTime(eventId, userId, date, startTime, endTime);
     }
 
-    public Optional<List<TimeSlot>> getByWeekDayTime(ObjectId eventId, ObjectId userId, DayOfWeek weekDay, LocalTime startTime, LocalTime endTime) {
+    public List<TimeSlot> getByWeekDayTime(ObjectId eventId, ObjectId userId, DayOfWeek weekDay, LocalTime startTime, LocalTime endTime) {
         return timeSlotRepository.findTimeSlotsByWeekDayTime(eventId, userId, weekDay, startTime, endTime);
     }
 
