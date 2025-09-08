@@ -1,0 +1,32 @@
+.rbc-allday-cell {
+  display: none;
+}
+
+.rbc-timeslot-group {
+  min-height: 20px;
+}
+
+.rbc-time-gutter {
+  height: 50px;
+}
+
+.rbc-time-view {
+  border-left: none;
+  border-top: none;
+}
+
+.rbc-today {
+  background-color: transparent;
+}
+
+.rbc-current-time-indicator {
+  display: none;
+}
+
+.rbc-day-slot .rbc-events-container {
+  margin-right: 0;
+}
+
+.rbc-event {
+  pointer-events: none;
+}
