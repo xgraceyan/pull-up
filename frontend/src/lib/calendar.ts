@@ -18,11 +18,43 @@ export const DAYS_OF_WEEK = [
 ] as const;
 export type DayOfWeek = (typeof DAYS_OF_WEEK)[number];
 
+export const DayOfWeekMap: Record<DayOfWeek, number> = {
+  SUNDAY: 0,
+  MONDAY: 1,
+  TUESDAY: 2,
+  WEDNESDAY: 3,
+  THURSDAY: 4,
+  FRIDAY: 5,
+  SATURDAY: 6,
+};
+
+export function dayToNum(day: DayOfWeek): number {
+  return DayOfWeekMap[day];
+}
+
 export function timeStringToDate(time: string): Date {
   const [hr, min] = time.split(":").map(Number);
   const date = new Date();
   date.setHours(hr, min, 0, 0);
   return date;
+}
+
+export function dateToTimeString(date: Date): string {
+  const hr = date.getHours().toString().padStart(2, "0");
+  const min = date.getMinutes().toString().padStart(2, "0");
+  return `${hr}:${min}`;
+}
+
+export function combineWeekDayAndTime(weekDay: DayOfWeek, time: Date) {
+  const base = new Date();
+  const diff = dayToNum(weekDay) - base.getDay();
+  base.setDate(base.getDate() + diff);
+  base.setHours(time.getHours(), time.getMinutes(), 0, 0);
+  return base;
+}
+
+export function dateToWeekDay(date: Date): DayOfWeek {
+  return DAYS_OF_WEEK[date.getDay()];
 }
 
 export const events = [
@@ -47,17 +79,25 @@ export const events = [
 ];
 
 export type TimeSlotEvent = RBCEvent & {
-  id: number;
-  isSelection?: boolean;
+  id: string;
   start: Date;
   end: Date;
+  user_count: number;
+};
+
+export type TimeSlotEventWrapperProps = {
+  event: TimeSlotEvent;
+  children: React.ReactNode;
 };
 
 export function findTimeSlotInSelection(
   start: Date,
   timeSlots: TimeSlotEvent[]
 ) {
-  return timeSlots.some((slot) => start.getTime() === slot.start.getTime());
+  const timeSlot = timeSlots.find(
+    (slot) => start.getTime() === slot.start.getTime()
+  );
+  return timeSlot;
 }
 
 // Adds new timeslots to existing and returns their combined slots
@@ -70,11 +110,11 @@ export function addSlots(slotInfo: SlotInfo, timeSlots: TimeSlotEvent[]) {
         let endTime = new Date(slot);
         endTime.setMinutes(slot.getMinutes() + 30);
         const newEvent: TimeSlotEvent = {
-          id: slot.getTime(),
+          id: slot.getTime().toString(),
           title: "Selected",
           start: slot,
           end: endTime,
-          isSelection: true,
+          user_count: 1,
         };
         newTimeSlots.push(newEvent);
       }

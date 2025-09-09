@@ -7,15 +7,23 @@ import {
   localizer,
   removeSlots,
   type TimeSlotEvent,
+  type TimeSlotEventWrapperProps,
 } from "@/lib/calendar";
 import type { Event } from "@/lib/event";
 
 interface WeekDayTimeCalendarProps {
   event: Event;
+  timeSlots: TimeSlotEvent[];
+  setTimeSlot: (value: React.SetStateAction<TimeSlotEvent | null>) => void;
 }
 
-export const WeekDayTimeCalendar = ({ event }: WeekDayTimeCalendarProps) => {
-  const [currTimeSlots, setCurrTimeSlots] = useState<TimeSlotEvent[]>([]);
+export const WeekDayTimeCalendar = ({
+  event,
+  timeSlots,
+  setTimeSlot,
+}: WeekDayTimeCalendarProps) => {
+  const [currTimeSlots, setCurrTimeSlots] =
+    useState<TimeSlotEvent[]>(timeSlots);
   const dragOriginRef = useRef<Date | null>(null);
 
   const formats = useMemo(
@@ -41,6 +49,19 @@ export const WeekDayTimeCalendar = ({ event }: WeekDayTimeCalendarProps) => {
     setCurrTimeSlots(selectResult);
   };
 
+  const eventWrapper = ({ event, children }: TimeSlotEventWrapperProps) => (
+    <div
+      onMouseEnter={() => {
+        setTimeSlot(event);
+      }}
+      onMouseLeave={() => {
+        setTimeSlot(null);
+      }}
+    >
+      {children}
+    </div>
+  );
+
   return (
     <div className="h-[600px]">
       <Calendar
@@ -65,23 +86,20 @@ export const WeekDayTimeCalendar = ({ event }: WeekDayTimeCalendarProps) => {
         formats={formats}
         selectable
         onSelectSlot={handleSelect}
+        components={{
+          eventWrapper: eventWrapper as any,
+        }}
         onSelecting={(range) => {
           if (!dragOriginRef.current) dragOriginRef.current = range.start;
           return true;
         }}
-        eventPropGetter={(event: TimeSlotEvent) => {
-          // "event" is a timeslot
-          if (event.isSelection) {
-            return {
-              style: {
-                backgroundColor: "rgba(59, 131, 246, 0.4)",
-                borderRadius: 0,
-                border: "0px",
-                color: "transparent",
-              },
-            };
-          }
-          return {};
+        eventPropGetter={(timeSlotEvent: TimeSlotEvent) => {
+          return {
+            className: "timeslot-event",
+            style: {
+              opacity: timeSlotEvent.user_count / event.userIds.length,
+            },
+          };
         }}
       />
     </div>

@@ -28,5 +28,20 @@
 }
 
 .rbc-event {
-  pointer-events: none;
+  cursor: default;
+}
+
+.rbc-event:active,
+.rbc-event:focus {
+  border: none !important;
+  outline: none !important;
+}
+
+.timeslot-event {
+  background-color: rgba(59, 131, 246, 0.75);
+  border-radius: 0;
+  border: 0px !important;
+  color: transparent;
+  min-width: 100%;
+  left: 0 !important;
 }
