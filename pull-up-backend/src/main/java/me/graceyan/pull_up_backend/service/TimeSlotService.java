@@ -16,8 +16,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,16 +31,20 @@ public class TimeSlotService {
         return timeSlotRepository.findTimeSlotsByEventIdAndUserId(eventId, userId);
     }
 
-    public List<TimeSlot> getByDate(ObjectId eventId, ObjectId userId, LocalDate date) {
-        return timeSlotRepository.findTimeSlotsByDate(eventId, userId, date);
+    public List<TimeSlot> getByUserDate(ObjectId eventId, ObjectId userId, LocalDate date) {
+        return timeSlotRepository.findTimeSlotsByUserDate(eventId, userId, date);
     }
 
-    public List<TimeSlot> getByDateTime(ObjectId eventId, ObjectId userId, LocalDate date, LocalTime startTime, LocalTime endTime) {
-        return timeSlotRepository.findTimeSlotsByDateTime(eventId, userId, date, startTime, endTime);
+    public List<TimeSlot> getByUserDateTime(ObjectId eventId, ObjectId userId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        return timeSlotRepository.findTimeSlotsByUserDateTime(eventId, userId, date, startTime, endTime);
     }
 
-    public List<TimeSlot> getByWeekDayTime(ObjectId eventId, ObjectId userId, DayOfWeek weekDay, LocalTime startTime, LocalTime endTime) {
-        return timeSlotRepository.findTimeSlotsByWeekDayTime(eventId, userId, weekDay, startTime, endTime);
+    public List<TimeSlot> getByUserWeekDayTime(ObjectId eventId, ObjectId userId, DayOfWeek weekDay, LocalTime startTime, LocalTime endTime) {
+        return timeSlotRepository.findTimeSlotsByUserWeekDayTime(eventId, userId, weekDay, startTime, endTime);
+    }
+
+    public List<TimeSlot> getByWeekDayTime(ObjectId eventId, DayOfWeek weekDay, LocalTime startTime, LocalTime endTime) {
+        return timeSlotRepository.findTimeSlotsByWeekDayTime(eventId, weekDay, startTime, endTime);
     }
 
     public void createTimeSlots(List<TimeSlot> timeSlots) {

@@ -10,7 +10,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface TimeSlotRepository extends MongoRepository<TimeSlot, ObjectId> {
@@ -18,13 +17,16 @@ public interface TimeSlotRepository extends MongoRepository<TimeSlot, ObjectId> 
     List<TimeSlot> findTimeSlotsByEventIdAndUserId(ObjectId eventId, ObjectId userId);
 
     @Query("{ 'eventId': ?0, 'userId': ?1, 'date': ?2 }")
-    List<TimeSlot> findTimeSlotsByDate(ObjectId eventId, ObjectId userId, LocalDate date);
+    List<TimeSlot> findTimeSlotsByUserDate(ObjectId eventId, ObjectId userId, LocalDate date);
 
     @Query("{ 'eventId': ?0, 'userId': ?1, 'date': ?2, 'startTime': { $lte: ?4 }, 'endTime': { $gte: ?3 } }")
-    List<TimeSlot> findTimeSlotsByDateTime(ObjectId eventId, ObjectId userId, LocalDate date, LocalTime startTime, LocalTime endTime);
+    List<TimeSlot> findTimeSlotsByUserDateTime(ObjectId eventId, ObjectId userId, LocalDate date, LocalTime startTime, LocalTime endTime);
 
     @Query("{ 'eventId': ?0, 'userId': ?1, 'weekDay': ?2, 'startTime': { $lte: ?4 }, 'endTime': { $gte: ?3 } }")
-    List<TimeSlot> findTimeSlotsByWeekDayTime(ObjectId eventId, ObjectId userId, DayOfWeek weekDay, LocalTime startTime, LocalTime endTime);
+    List<TimeSlot> findTimeSlotsByUserWeekDayTime(ObjectId eventId, ObjectId userId, DayOfWeek weekDay, LocalTime startTime, LocalTime endTime);
+
+    @Query("{ 'eventId': ?0, 'weekDay': ?1, 'startTime': { $lte: ?2 }, 'endTime': { $gte: ?3 } }")
+    List<TimeSlot> findTimeSlotsByWeekDayTime(ObjectId eventId, DayOfWeek weekDay, LocalTime startTime, LocalTime endTime);
 
     void deleteTimeSlotById(ObjectId id);
     void deleteTimeSlotByEventIdAndUserIdAndDate(ObjectId eventId, ObjectId userId, LocalDate date);

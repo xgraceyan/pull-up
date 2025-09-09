@@ -2,6 +2,8 @@ package me.graceyan.pull_up_backend.web;
 
 import lombok.RequiredArgsConstructor;
 import me.graceyan.pull_up_backend.model.TimeSlot;
+import me.graceyan.pull_up_backend.model.User;
+import me.graceyan.pull_up_backend.repository.UserRepository;
 import me.graceyan.pull_up_backend.request.TimeSlotRequest;
 import me.graceyan.pull_up_backend.service.TimeSlotService;
 import org.bson.types.ObjectId;
@@ -14,7 +16,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/timeslots")
@@ -22,6 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TimeSlotController {
     private final TimeSlotService timeSlotService;
+    private final UserRepository userRepository;
 
     @GetMapping("/event/{eventId}")
     public ResponseEntity<List<TimeSlot>> getAllByEventId(@PathVariable ObjectId eventId) {
@@ -34,27 +38,45 @@ public class TimeSlotController {
     }
 
     @GetMapping("/event/{eventId}/user/{userId}/date")
-    public ResponseEntity<List<TimeSlot>> getByDate(
+    public ResponseEntity<List<TimeSlot>> getByUserDate(
             @PathVariable ObjectId eventId, @PathVariable ObjectId userId,
             @RequestParam LocalDate date
     ) {
-        return new ResponseEntity<>(timeSlotService.getByDate(eventId, userId, date), HttpStatus.OK);
+        return new ResponseEntity<>(timeSlotService.getByUserDate(eventId, userId, date), HttpStatus.OK);
     }
 
     @GetMapping("/event/{eventId}/user/{userId}/datetime")
-    public ResponseEntity<List<TimeSlot>> getByDateTime(
+    public ResponseEntity<List<TimeSlot>> getByUserDateTime(
             @PathVariable ObjectId eventId, @PathVariable ObjectId userId,
             @RequestParam LocalDate date, @RequestParam LocalTime startTime, @RequestParam LocalTime endTime
     ) {
-        return new ResponseEntity<>(timeSlotService.getByDateTime(eventId, userId, date, startTime, endTime), HttpStatus.OK);
+        return new ResponseEntity<>(timeSlotService.getByUserDateTime(eventId, userId, date, startTime, endTime), HttpStatus.OK);
     }
 
     @GetMapping("/event/{eventId}/user/{userId}/weekdaytime")
-    public ResponseEntity<List<TimeSlot>> getByWeekDayTime(
+    public ResponseEntity<List<TimeSlot>> getByUserWeekDayTime(
             @PathVariable ObjectId eventId, @PathVariable ObjectId userId,
             @RequestParam DayOfWeek weekDay, @RequestParam LocalTime startTime, @RequestParam LocalTime endTime
     ) {
-        return new ResponseEntity<>(timeSlotService.getByWeekDayTime(eventId, userId, weekDay, startTime, endTime), HttpStatus.OK);
+        return new ResponseEntity<>(timeSlotService.getByUserWeekDayTime(eventId, userId, weekDay, startTime, endTime), HttpStatus.OK);
+    }
+
+    @GetMapping("/event/{eventId}/weekdaytime")
+    public ResponseEntity<List<TimeSlot>> getByWeekDayTime(
+            @PathVariable ObjectId eventId,
+            @RequestParam DayOfWeek weekDay, @RequestParam LocalTime startTime, @RequestParam LocalTime endTime
+    ) {
+        return new ResponseEntity<>(timeSlotService.getByWeekDayTime(eventId, weekDay, startTime, endTime), HttpStatus.OK);
+    }
+
+    @GetMapping("/event/{eventId}/weekdaytime/users")
+    public ResponseEntity<List<User>> getUsersByWeekDayTime(
+            @PathVariable ObjectId eventId,
+            @RequestParam DayOfWeek weekDay, @RequestParam LocalTime startTime, @RequestParam LocalTime endTime
+    ) {
+        List<TimeSlot> timeSlots = timeSlotService.getByWeekDayTime(eventId, weekDay, startTime, endTime);
+        Set<ObjectId> userIds = timeSlots.stream().map(TimeSlot::getUserId).collect(Collectors.toSet());
+        return new ResponseEntity<>(userRepository.findAllById(userIds), HttpStatus.OK);
     }
 
     @PostMapping("/create")
