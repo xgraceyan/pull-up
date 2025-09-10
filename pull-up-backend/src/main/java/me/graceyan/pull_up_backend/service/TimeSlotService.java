@@ -4,6 +4,7 @@ import com.mongodb.client.result.DeleteResult;
 import lombok.RequiredArgsConstructor;
 import me.graceyan.pull_up_backend.model.TimeSlot;
 import me.graceyan.pull_up_backend.repository.TimeSlotRepository;
+import me.graceyan.pull_up_backend.request.TimeSlotRequest;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -15,7 +16,10 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -47,19 +51,22 @@ public class TimeSlotService {
         return timeSlotRepository.findTimeSlotsByWeekDayTime(eventId, weekDay, startTime, endTime);
     }
 
+    public Criteria buildTimeSlotCriteria(TimeSlot timeSlot) {
+        Criteria timeSlotCriteria = Criteria.where("eventId").is(timeSlot.getEventId())
+                .and("userId").is(timeSlot.getUserId());
+
+        if(timeSlot.getDate() != null) timeSlotCriteria.and("date").is(timeSlot.getDate());
+        if(timeSlot.getStartTime() != null && timeSlot.getEndTime() != null)
+            timeSlotCriteria.and("startTime").is(timeSlot.getStartTime())
+                    .and("endTime").is(timeSlot.getEndTime());
+        if(timeSlot.getWeekDay() != null) timeSlotCriteria.and("weekDay").is(timeSlot.getWeekDay());
+        return timeSlotCriteria;
+    }
+
     public void createTimeSlots(List<TimeSlot> timeSlots) {
         BulkOperations bulkOperations = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, TimeSlot.class);
         for(TimeSlot timeSlot : timeSlots) {
-            Criteria timeSlotCriteria = Criteria.where("eventId").is(timeSlot.getEventId())
-                    .and("userId").is(timeSlot.getUserId());
-
-            if(timeSlot.getDate() != null) timeSlotCriteria.and("date").is(timeSlot.getDate());
-            if(timeSlot.getStartTime() != null && timeSlot.getEndTime() != null)
-                    timeSlotCriteria.and("startTime").is(timeSlot.getStartTime())
-                            .and("endTime").is(timeSlot.getEndTime());
-            if(timeSlot.getWeekDay() != null) timeSlotCriteria.and("weekDay").is(timeSlot.getWeekDay());
-
-            Query timeSlotQuery = new Query(timeSlotCriteria);
+            Query timeSlotQuery = new Query(this.buildTimeSlotCriteria(timeSlot));
 
             Update update = new Update()
                     .set("status", timeSlot.getStatus())
@@ -70,10 +77,60 @@ public class TimeSlotService {
         bulkOperations.execute();
     }
 
-    public long deleteTimeSlots(List<ObjectId> ids) {
+    private String buildKey(TimeSlot timeSlot) {
+        String key = "";
+        if(timeSlot.getDate() != null) {
+            key += timeSlot.getDate() + "|";
+        } else if(timeSlot.getWeekDay() != null) {
+            key += timeSlot.getWeekDay() + "|";
+        }
+        if(timeSlot.getStartTime() != null && timeSlot.getEndTime() != null) {
+            key += timeSlot.getStartTime() + "_" + timeSlot.getEndTime();
+        }
+        return key;
+    }
+
+    public void setTimeSlots(ObjectId eventId, ObjectId userId, List<TimeSlot> timeSlots) {
+        // Remove any existing not in timeSlots
+        BulkOperations bulkOps = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, TimeSlot.class);
+        List<TimeSlot> existingTimeSlots = this.getAllByEventAndUserId(eventId, userId);
+
+        Set<String> newKeys = new HashSet<>();
+        for (TimeSlot timeSlot : timeSlots) {
+            newKeys.add(buildKey(timeSlot));
+        }
+
+        for(TimeSlot existing : existingTimeSlots) {
+            if(!newKeys.contains(buildKey(existing))) {
+                bulkOps.remove(new Query(buildTimeSlotCriteria(existing)));
+            }
+        }
+        bulkOps.execute();
+
+        this.createTimeSlots(timeSlots);
+    }
+
+
+    public long deleteTimeSlotsById(List<ObjectId> ids) {
         Query deleteQuery = new Query(Criteria.where("_id").in(ids));
         DeleteResult deleteResult =  mongoTemplate.remove(deleteQuery, TimeSlot.class);
         return deleteResult.getDeletedCount();
     }
 
+    public List<TimeSlot> requestToTimeSlot(List<TimeSlotRequest> timeSlotRequests) {
+        List<TimeSlot> timeSlots = new ArrayList<>();
+        for(TimeSlotRequest req : timeSlotRequests) {
+            TimeSlot ts = new TimeSlot(
+                    req.getEventId(),
+                    req.getUserId(),
+                    req.getStartTime(),
+                    req.getEndTime(),
+                    req.getDate(),
+                    req.getWeekDay(),
+                    req.getStatus()
+            );
+            timeSlots.add(ts);
+        }
+        return timeSlots;
+    }
 }

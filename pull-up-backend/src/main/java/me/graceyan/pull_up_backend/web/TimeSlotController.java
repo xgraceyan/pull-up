@@ -81,27 +81,22 @@ public class TimeSlotController {
 
     @PostMapping("/create")
     public ResponseEntity<List<TimeSlot>> createTimeSlots(@RequestBody List<TimeSlotRequest> timeSlotRequests) {
-        List<TimeSlot> timeSlots = new ArrayList<>();
-        for(TimeSlotRequest req : timeSlotRequests) {
-            TimeSlot ts = new TimeSlot(
-                    req.getEventId(),
-                    req.getUserId(),
-                    req.getStartTime(),
-                    req.getEndTime(),
-                    req.getDate(),
-                    req.getWeekDay(),
-                    req.getStatus()
-            );
-            timeSlots.add(ts);
-        }
+        List<TimeSlot> timeSlots = timeSlotService.requestToTimeSlot(timeSlotRequests);
         timeSlotService.createTimeSlots(timeSlots);
+        return new ResponseEntity<>(timeSlots, HttpStatus.OK);
+    }
+
+    @PutMapping("/event/{eventId}/user/{userId}/set")
+    public ResponseEntity<List<TimeSlot>> setTimeSlots(@PathVariable ObjectId eventId, @PathVariable ObjectId userId, @RequestBody List<TimeSlotRequest> timeSlotRequests) {
+        List<TimeSlot> timeSlots = timeSlotService.requestToTimeSlot(timeSlotRequests);
+        timeSlotService.setTimeSlots(eventId, userId, timeSlots);
         return new ResponseEntity<>(timeSlots, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<Long> deleteTimeSlots(@RequestBody List<String> idPayload) {
         List<ObjectId> timeSlotIds = idPayload.stream().map(ObjectId::new).toList();
-        return new ResponseEntity<>(timeSlotService.deleteTimeSlots(timeSlotIds), HttpStatus.OK);
+        return new ResponseEntity<>(timeSlotService.deleteTimeSlotsById(timeSlotIds), HttpStatus.OK);
     }
 
 
