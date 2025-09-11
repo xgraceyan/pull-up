@@ -1,14 +1,13 @@
 import { timeStringToDate } from "@/lib/calendar";
 import type { Event, EventRaw } from "@/lib/event";
+import { apiFetch } from "./apiUtils";
 
 export async function fetchEventFromUrl(urlAlias: string): Promise<Event> {
-  const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/api/events/${urlAlias}`
+  const raw_event: EventRaw = await apiFetch(
+    `/events/${urlAlias}`,
+    { method: "GET" },
+    "Failed to fetch event"
   );
-  if (!res.ok) {
-    throw new Error("Failed to fetch event");
-  }
-  const raw_event: EventRaw = await res.json();
   return {
     ...raw_event,
     startTime: timeStringToDate(raw_event.startTime),

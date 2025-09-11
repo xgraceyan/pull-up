@@ -1,5 +1,6 @@
 import type { DayOfWeek } from "@/lib/calendar";
 import type { CreateUserForm, User, UserPayload, UserRaw } from "@/lib/user";
+import { apiFetch } from "./apiUtils";
 
 export async function createUser(
   eventId: string,
@@ -10,20 +11,34 @@ export async function createUser(
     passwordRaw: user.password,
     eventId,
   };
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/create`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+
+  return await apiFetch(
+    "/users/create",
+    {
+      method: "POST",
+      body: JSON.stringify(userPayload),
     },
-    body: JSON.stringify(userPayload),
-  });
+    "Failed to create user"
+  );
+}
 
-  if (!res.ok) {
-    const errorMessage = await res.text();
-    throw new Error(`Failed to create user: ${errorMessage}`);
-  }
-
-  return await res.json();
+export async function loginUser(
+  eventId: string,
+  name: string,
+  passwordRaw: string
+): Promise<User> {
+  const userPayload = {
+    name,
+    passwordRaw,
+  };
+  return await apiFetch(
+    `/users/event/${eventId}/login`,
+    {
+      method: "POST",
+      body: JSON.stringify(userPayload),
+    },
+    "Failed to login user"
+  );
 }
 
 export async function fetchUsersByWeekDayTime(
@@ -37,16 +52,11 @@ export async function fetchUsersByWeekDayTime(
     startTime,
     endTime,
   });
-  const res = await fetch(
-    `${
-      import.meta.env.VITE_API_URL
-    }/api/timeslots/event/${eventId}/weekdaytime/users?${params.toString()}`
+  const raw_users: UserRaw[] = await apiFetch(
+    `/timeslots/event/${eventId}/weekdaytime/users?${params.toString()}`,
+    { method: "GET" },
+    "Failed to fetch time slot users"
   );
-  if (!res.ok) {
-    throw new Error("Failed to fetch time slot users");
-  }
-
-  const raw_users: UserRaw[] = await res.json();
 
   return raw_users.map((raw_user: UserRaw) => ({
     ...raw_user,

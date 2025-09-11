@@ -9,7 +9,10 @@ export function useSessionState<T>(key: string, defaultValue: T) {
       const parsed = JSON.parse(stored);
 
       // Parse date fields for TimeSlotEvent
-      if (Array.isArray(parsed)) {
+      if (
+        Array.isArray(parsed) &&
+        parsed.every((obj) => obj.start !== undefined && obj.end !== undefined)
+      ) {
         return parsed.map((slot) => ({
           ...slot,
           start: new Date(slot.start),
