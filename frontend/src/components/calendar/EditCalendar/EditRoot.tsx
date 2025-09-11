@@ -28,7 +28,7 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
 
   const [currTimeSlots, setCurrTimeSlots] = useSessionState<
     TimeSlotEvent[] | null
-  >(`schedule-${user.id}`, null);
+  >(`timeslots-${user.id}`, null);
 
   useEffect(() => {
     if (timeSlots && (!currTimeSlots || currTimeSlots.length == 0)) {
@@ -38,15 +38,16 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
 
   useEffect(() => {
     // Clear session storage on page refresh
-    window.addEventListener("beforeunload", () => {
-      sessionStorage.clear();
-    });
-
-    return () => {
-      window.removeEventListener("beforeunload", () => {
-        sessionStorage.clear();
+    const handleUnload = () => {
+      Object.keys(sessionStorage).forEach((key) => {
+        if (key.startsWith("timeslots-")) {
+          sessionStorage.removeItem(key);
+        }
       });
     };
+
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
   }, []);
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
