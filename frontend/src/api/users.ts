@@ -31,14 +31,10 @@ export async function loginUser(
     name,
     passwordRaw,
   };
-  return await apiFetch(
-    `/users/event/${eventId}/login`,
-    {
-      method: "POST",
-      body: JSON.stringify(userPayload),
-    },
-    "Failed to login user"
-  );
+  return await apiFetch(`/users/event/${eventId}/login`, {
+    method: "POST",
+    body: JSON.stringify(userPayload),
+  });
 }
 
 export async function fetchUsersByWeekDayTime(

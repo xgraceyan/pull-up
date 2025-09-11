@@ -2,6 +2,8 @@ import type { User } from "@/lib/user";
 import { Button } from "../ui/button";
 import { CreateUserDialog } from "./CreateUserDialog";
 import type { Event } from "@/lib/event";
+import { useState } from "react";
+import { LoginDialog } from "./LoginDialog";
 
 interface UserInfoProps {
   event: Event;
@@ -10,8 +12,20 @@ interface UserInfoProps {
 }
 
 export const UserInfo = ({ event, users, setEditUser }: UserInfoProps) => {
+  const [loginOpen, setLoginOpen] = useState<boolean>(false);
+  const [loginUser, setLoginUser] = useState<User | null>(null);
+
   return (
     <div>
+      {loginUser && (
+        <LoginDialog
+          user={loginUser}
+          eventId={event.id}
+          open={loginOpen}
+          setOpen={setLoginOpen}
+          setEditUser={setEditUser}
+        />
+      )}
       <h1 className="font-bold">Users</h1>
       {users.map((user) => (
         <div className="p-2" key={user.id}>
@@ -19,7 +33,12 @@ export const UserInfo = ({ event, users, setEditUser }: UserInfoProps) => {
             href=""
             onClick={(e) => {
               e.preventDefault();
-              setEditUser(user);
+              if (user.passwordHash.length > 0) {
+                setLoginOpen(true);
+                setLoginUser(user);
+              } else {
+                setEditUser(user);
+              }
             }}
           >
             {user.name}

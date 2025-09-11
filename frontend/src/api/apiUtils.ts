@@ -6,14 +6,15 @@ export async function apiFetch<T>(
   const res = await fetch(`${import.meta.env.VITE_API_URL}/api${endpoint}`, {
     ...options,
     headers: {
-      "Content-Type": "applicaion/json",
+      "Content-Type": "application/json",
       ...(options.headers || {}),
     },
   });
 
   if (!res.ok) {
     const resErrorMessage = await res.text();
-    throw new Error(`${errorMessage}: ${resErrorMessage}`);
+    const errorMessagePrefix = errorMessage ? `${errorMessage}: ` : "";
+    throw new Error(`${errorMessagePrefix}${resErrorMessage}`);
   }
 
   return await res.json();
