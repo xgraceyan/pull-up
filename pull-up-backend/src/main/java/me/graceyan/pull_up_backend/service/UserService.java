@@ -2,6 +2,7 @@ package me.graceyan.pull_up_backend.service;
 
 import lombok.RequiredArgsConstructor;
 import me.graceyan.pull_up_backend.exception.UserCreateException;
+import me.graceyan.pull_up_backend.exception.UserLoginException;
 import me.graceyan.pull_up_backend.model.Event;
 import me.graceyan.pull_up_backend.model.User;
 import me.graceyan.pull_up_backend.repository.UserRepository;
@@ -32,9 +33,19 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public User login(String name, String passwordRaw, ObjectId eventId) {
+        User user = userRepository.findUserByNameAndEventId(name, eventId).orElseThrow(() -> new UserLoginException("User not found"));
+        if(!passwordEncoder.matches(passwordRaw, user.getPasswordHash())) {
+            throw new UserLoginException("Invalid password");
+        }
+        return user;
+    }
+
     public User createUser(String name, String passwordRaw, ObjectId eventId) {
         try {
-            User user = userRepository.insert(new User(name, passwordEncoder.encode(passwordRaw), eventId));
+            String password = passwordRaw;
+            if(!passwordRaw.isEmpty()) password = passwordEncoder.encode(passwordRaw);
+            User user = userRepository.insert(new User(name, password, eventId));
             mongoTemplate.update(Event.class)
                     .matching(Criteria.where("_id").is(eventId))
                     .apply(new Update().addToSet("userIds").value(user))
