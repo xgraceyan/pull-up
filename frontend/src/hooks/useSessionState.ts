@@ -32,3 +32,11 @@ export function useSessionState<T>(key: string, defaultValue: T) {
 
   return [state, setState] as const;
 }
+
+export function handleSessionClear(keyPrefix: string) {
+  Object.keys(sessionStorage).forEach((key) => {
+    if (key.startsWith("timeslots-")) {
+      sessionStorage.removeItem(key);
+    }
+  });
+}

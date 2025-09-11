@@ -9,7 +9,7 @@ import {
   loadTimeSlotToCalendar,
 } from "@/lib/timeslot";
 import { Button } from "@/components/ui/button";
-import { useSessionState } from "@/hooks/useSessionState";
+import { handleSessionClear, useSessionState } from "@/hooks/useSessionState";
 
 interface EditRootProps {
   event: Event;
@@ -32,7 +32,7 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
   >(`timeslots-${user.id}`, null);
 
   useEffect(() => {
-    if (timeSlots && (!currTimeSlots || currTimeSlots.length == 0)) {
+    if (timeSlots && !currTimeSlots) {
       setCurrTimeSlots(loadTimeSlotToCalendar(timeSlots));
     }
   }, [timeSlots]);
@@ -40,18 +40,14 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
   useEffect(() => {
     // Clear session storage on page refresh
     const handleUnload = () => {
-      Object.keys(sessionStorage).forEach((key) => {
-        if (key.startsWith("timeslots-")) {
-          sessionStorage.removeItem(key);
-        }
-      });
+      handleSessionClear("timeslots-");
     };
 
     window.addEventListener("beforeunload", handleUnload);
     return () => window.removeEventListener("beforeunload", handleUnload);
   }, []);
 
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = () => {
     if (!currTimeSlots) return;
     const payloadTimeSlots = convertToPayloadTimeslots(
       event,
@@ -69,6 +65,11 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setEditUser(null);
+    handleSessionClear(`timeslots-${user.id}`);
+  };
+
+  const handleClear = () => {
+    setCurrTimeSlots([]);
   };
 
   if (slotsLoading) return <p>Loading...</p>;
@@ -85,12 +86,26 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
           setCurrTimeSlots={setCurrTimeSlots}
         />
       </div>
-      <div className="col-span-1">
-        <h1 className="font-bold">Editing {user.name}</h1>
-        <Button onClick={handleSubmit}>Submit</Button>
-        <Button variant="outline" onClick={handleCancel}>
-          Cancel
-        </Button>
+      <div className="col-span-1 flex flex-col gap-5">
+        <div>
+          <h1 className="font-medium text-lg">Editing {user.name}</h1>
+          <p className="text-sm text-gray-500">
+            Click or drag to select and deselect availability
+          </p>
+        </div>
+        <div className="flex gap-5 flex-col lg:px-10 md:px-3">
+          <Button className="flex-1" variant="secondary" onClick={handleClear}>
+            Clear selection
+          </Button>
+          <div className="flex flex-1 gap-3">
+            <Button className="flex-1" onClick={handleSubmit}>
+              Submit
+            </Button>
+            <Button className="flex-1" variant="outline" onClick={handleCancel}>
+              Cancel
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
