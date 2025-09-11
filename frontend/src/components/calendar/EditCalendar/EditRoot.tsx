@@ -2,7 +2,7 @@ import type { Event } from "@/lib/event";
 import { EditCalendar } from "./EditCalendar";
 import type { User } from "@/lib/user";
 import { useSetTimeSlots, useTimeSlotByUser } from "@/hooks/useTimeSlot";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { type TimeSlotEvent } from "@/lib/calendar";
 import {
   convertToPayloadTimeslots,
@@ -26,6 +26,7 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
 
   const useSetTimeSlotMutation = useSetTimeSlots(event.id, user.id);
 
+  // Use session storage, because selection clears when page is tabbed out.
   const [currTimeSlots, setCurrTimeSlots] = useSessionState<
     TimeSlotEvent[] | null
   >(`timeslots-${user.id}`, null);
@@ -50,7 +51,7 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
     return () => window.removeEventListener("beforeunload", handleUnload);
   }, []);
 
-  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (!currTimeSlots) return;
     const payloadTimeSlots = convertToPayloadTimeslots(
       event,
@@ -58,14 +59,14 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
       currTimeSlots
     );
     try {
-      await useSetTimeSlotMutation.mutate(payloadTimeSlots);
+      useSetTimeSlotMutation.mutate(payloadTimeSlots);
       setEditUser(null);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleCancel = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setEditUser(null);
   };
@@ -85,15 +86,9 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
         />
       </div>
       <div className="col-span-1">
-        <h1 className="text-bold">Editing</h1>
-        <Button style={{ cursor: "pointer" }} onClick={handleSubmit}>
-          Submit
-        </Button>
-        <Button
-          variant="outline"
-          style={{ cursor: "pointer" }}
-          onClick={handleCancel}
-        >
+        <h1 className="font-bold">Editing {user.name}</h1>
+        <Button onClick={handleSubmit}>Submit</Button>
+        <Button variant="outline" onClick={handleCancel}>
           Cancel
         </Button>
       </div>

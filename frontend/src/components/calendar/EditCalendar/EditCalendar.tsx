@@ -45,9 +45,6 @@ export const EditCalendar = ({
   };
 
   const handleSelectEvent = (event: TimeSlotEvent) => {
-    // remove the clicked event
-    console.log("Selected", event);
-
     setCurrTimeSlots(currTimeSlots.filter((ev) => ev.id !== event.id));
   };
 

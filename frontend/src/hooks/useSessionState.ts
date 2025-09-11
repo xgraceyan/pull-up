@@ -8,7 +8,7 @@ export function useSessionState<T>(key: string, defaultValue: T) {
     try {
       const parsed = JSON.parse(stored);
 
-      // Parse date fields for TimeSlot
+      // Parse date fields for TimeSlotEvent
       if (Array.isArray(parsed)) {
         return parsed.map((slot) => ({
           ...slot,

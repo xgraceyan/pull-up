@@ -1,9 +1,9 @@
 import {
   fetchAllEventTimeSlots,
   fetchAllFromUser,
-  fetchUsersByWeekDayTime,
   setTimeSlots,
 } from "@/api/timeslots";
+import { fetchUsersByWeekDayTime } from "@/api/users";
 import type { DayOfWeek } from "@/lib/calendar";
 import { type TimeSlot, type TimeSlotPayload } from "@/lib/timeslot";
 import { type User } from "@/lib/user";
@@ -49,15 +49,13 @@ export function useSetTimeSlots(eventId: string, userId: string) {
     mutationFn: (timeSlots: TimeSlotPayload[]) =>
       setTimeSlots(eventId, userId, timeSlots),
     onSuccess: () => {
-      console.log("PUT success");
-
       queryClient.invalidateQueries({
         queryKey: ["timeslot", eventId],
       });
     },
     onError: (error) => {
       // Handle errors
-      console.error("Form submission failed:", error);
+      console.error("Set timeslots failed:", error);
     },
   });
 }
