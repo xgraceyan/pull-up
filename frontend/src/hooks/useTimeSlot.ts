@@ -1,9 +1,13 @@
-import { fetchAllEventTimeSlots } from "@/api/timeslots";
-import { fetchUsersByWeekDayTime } from "@/api/users";
+import {
+  fetchAllEventTimeSlots,
+  fetchAllFromUser,
+  fetchUsersByWeekDayTime,
+  setTimeSlots,
+} from "@/api/timeslots";
 import type { DayOfWeek } from "@/lib/calendar";
-import { type TimeSlot } from "@/lib/timeslot";
+import { type TimeSlot, type TimeSlotPayload } from "@/lib/timeslot";
 import { type User } from "@/lib/user";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useTimeSlot(eventId?: string) {
   return useQuery<TimeSlot[]>({
@@ -24,5 +28,36 @@ export function useUsersByWeekDayTime(
     queryFn: () =>
       fetchUsersByWeekDayTime(eventId, weekDay, startTime, endTime),
     enabled: !!eventId && !!startTime && !!endTime,
+  });
+}
+
+export function useTimeSlotByUser(eventId: string, userId?: string) {
+  return useQuery<TimeSlot[]>({
+    queryKey: ["timeslotByUser", eventId, userId],
+    queryFn: () => {
+      if (!userId) return Promise.resolve([]);
+      return fetchAllFromUser(eventId, userId);
+    },
+    enabled: !!eventId && !!userId,
+  });
+}
+
+export function useSetTimeSlots(eventId: string, userId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (timeSlots: TimeSlotPayload[]) =>
+      setTimeSlots(eventId, userId, timeSlots),
+    onSuccess: () => {
+      console.log("PUT success");
+
+      queryClient.invalidateQueries({
+        queryKey: ["timeslot", eventId],
+      });
+    },
+    onError: (error) => {
+      // Handle errors
+      console.error("Form submission failed:", error);
+    },
   });
 }

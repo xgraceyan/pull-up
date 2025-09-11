@@ -4,6 +4,7 @@ import {
   type Event as RBCEvent,
   type SlotInfo,
 } from "react-big-calendar";
+import type { TimeSlotStatus } from "./timeslot";
 
 export const localizer = momentLocalizer(moment);
 
@@ -57,6 +58,14 @@ export function dateToWeekDay(date: Date): DayOfWeek {
   return DAYS_OF_WEEK[date.getDay()];
 }
 
+export function formatTime(time: Date) {
+  return moment(time).format("h:mm A");
+}
+
+export function formatDate(date: Date) {
+  return moment(date).format("YYYY-MM-DD");
+}
+
 export const events = [
   {
     id: 0,
@@ -82,7 +91,8 @@ export type TimeSlotEvent = RBCEvent & {
   id: string;
   start: Date;
   end: Date;
-  user_count: number;
+  userIds: string[];
+  status: TimeSlotStatus;
 };
 
 export type TimeSlotEventWrapperProps = {
@@ -101,7 +111,11 @@ export function findTimeSlotInSelection(
 }
 
 // Adds new timeslots to existing and returns their combined slots
-export function addSlots(slotInfo: SlotInfo, timeSlots: TimeSlotEvent[]) {
+export function addSlots(
+  userId: string,
+  slotInfo: SlotInfo,
+  timeSlots: TimeSlotEvent[]
+) {
   const newTimeSlots: TimeSlotEvent[] = [];
 
   for (const slot of slotInfo.slots) {
@@ -114,7 +128,8 @@ export function addSlots(slotInfo: SlotInfo, timeSlots: TimeSlotEvent[]) {
           title: "Selected",
           start: slot,
           end: endTime,
-          user_count: 1,
+          userIds: [userId],
+          status: "available",
         };
         newTimeSlots.push(newEvent);
       }

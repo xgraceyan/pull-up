@@ -1,11 +1,13 @@
-import { Calendar, DateLocalizer, type SlotInfo } from "react-big-calendar";
-import { useMemo, useRef, useState } from "react";
+import {
+  Calendar,
+  DateLocalizer,
+  type CalendarProps,
+  type EventWrapperProps,
+} from "react-big-calendar";
+import { useMemo, type ComponentType } from "react";
 import "./week-day-time-calendar.css";
 import {
-  addSlots,
-  findTimeSlotInSelection,
   localizer,
-  removeSlots,
   type TimeSlotEvent,
   type TimeSlotEventWrapperProps,
 } from "@/lib/calendar";
@@ -14,18 +16,16 @@ import type { Event } from "@/lib/event";
 interface WeekDayTimeCalendarProps {
   event: Event;
   timeSlots: TimeSlotEvent[];
-  setTimeSlot: (value: React.SetStateAction<TimeSlotEvent | null>) => void;
+  setTimeSlot?: (value: React.SetStateAction<TimeSlotEvent | null>) => void;
+  calendarProps?: Partial<CalendarProps<TimeSlotEvent>>;
 }
 
 export const WeekDayTimeCalendar = ({
   event,
   timeSlots,
   setTimeSlot,
+  calendarProps,
 }: WeekDayTimeCalendarProps) => {
-  const [currTimeSlots, setCurrTimeSlots] =
-    useState<TimeSlotEvent[]>(timeSlots);
-  const dragOriginRef = useRef<Date | null>(null);
-
   const formats = useMemo(
     () => ({
       dayFormat: (date: Date, culture?: string, localizer?: DateLocalizer) =>
@@ -34,28 +34,13 @@ export const WeekDayTimeCalendar = ({
     []
   );
 
-  const handleSelect = (slotInfo: SlotInfo) => {
-    const mouseDownSlot = dragOriginRef.current ?? slotInfo.start;
-    dragOriginRef.current = null; // reset for next drag
-
-    let selectResult = currTimeSlots;
-
-    if (findTimeSlotInSelection(mouseDownSlot, currTimeSlots)) {
-      selectResult = removeSlots(slotInfo, currTimeSlots);
-    } else {
-      selectResult = addSlots(slotInfo, currTimeSlots);
-    }
-
-    setCurrTimeSlots(selectResult);
-  };
-
   const eventWrapper = ({ event, children }: TimeSlotEventWrapperProps) => (
     <div
       onMouseEnter={() => {
-        setTimeSlot(event);
+        setTimeSlot?.(event);
       }}
       onMouseLeave={() => {
-        setTimeSlot(null);
+        setTimeSlot?.(null);
       }}
     >
       {children}
@@ -68,7 +53,7 @@ export const WeekDayTimeCalendar = ({
         localizer={localizer}
         startAccessor="start"
         endAccessor="end"
-        events={currTimeSlots}
+        events={timeSlots}
         defaultView={"week"}
         views={{
           week: true,
@@ -84,23 +69,20 @@ export const WeekDayTimeCalendar = ({
           height: "100%",
         }}
         formats={formats}
-        selectable
-        onSelectSlot={handleSelect}
         components={{
-          eventWrapper: eventWrapper as any,
-        }}
-        onSelecting={(range) => {
-          if (!dragOriginRef.current) dragOriginRef.current = range.start;
-          return true;
+          eventWrapper: eventWrapper as unknown as ComponentType<
+            EventWrapperProps<TimeSlotEvent>
+          >,
         }}
         eventPropGetter={(timeSlotEvent: TimeSlotEvent) => {
           return {
             className: "timeslot-event",
             style: {
-              opacity: timeSlotEvent.user_count / event.userIds.length,
+              opacity: timeSlotEvent.userIds.length / event.userIds.length,
             },
           };
         }}
+        {...calendarProps}
       />
     </div>
   );

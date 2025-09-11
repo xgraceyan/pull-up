@@ -1,8 +1,7 @@
-import type { ObjectId } from "mongodb";
 import type { DayOfWeek } from "./calendar";
 import type { User } from "./user";
 
-export type EventType = "day" | "daytime" | "weekdaytime";
+export type EventType = "day" | "dayTime" | "weekdayTime";
 
 export type Event = {
   id: string;
