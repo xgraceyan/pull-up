@@ -64,6 +64,7 @@ public class TimeSlotService {
     }
 
     public void createTimeSlots(List<TimeSlot> timeSlots) {
+        if(timeSlots.isEmpty()) return;
         BulkOperations bulkOperations = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, TimeSlot.class);
         for(TimeSlot timeSlot : timeSlots) {
             Query timeSlotQuery = new Query(this.buildTimeSlotCriteria(timeSlot));
@@ -100,12 +101,16 @@ public class TimeSlotService {
             newKeys.add(buildKey(timeSlot));
         }
 
+        boolean hasOperations = false;
         for(TimeSlot existing : existingTimeSlots) {
             if(!newKeys.contains(buildKey(existing))) {
+                hasOperations = true;
                 bulkOps.remove(new Query(buildTimeSlotCriteria(existing)));
             }
         }
-        bulkOps.execute();
+        if(hasOperations) {
+            bulkOps.execute();
+        }
 
         this.createTimeSlots(timeSlots);
     }
