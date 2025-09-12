@@ -52,7 +52,7 @@ export function Event() {
 
   return (
     <div className="flex flex-col h-screen pt-10">
-      <p className="text-lg font-medium text-center">{event.name}</p>
+      <p className="text-xl font-bold text-center">{event.name}</p>
       {editUser && editWeekDayTimeCalendar}
 
       {!editUser && (

@@ -14,15 +14,9 @@ export type UserRaw = {
   createdAt: string;
 };
 
-export type CreateUserForm = {
-  name: string;
-  password: string;
-};
-
 export type UserPayload = {
   name: string;
   passwordRaw: string;
-  eventId: string;
 };
 
 export function getAllUsersFromId(userIds: string[], users: User[]): User[] {

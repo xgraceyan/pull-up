@@ -9,7 +9,9 @@ import {
   loadTimeSlotToCalendar,
 } from "@/lib/timeslot";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { handleSessionClear, useSessionState } from "@/hooks/useSessionState";
+import { useDeleteUser } from "@/hooks/useUser";
 
 interface EditRootProps {
   event: Event;
@@ -25,6 +27,8 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
   } = useTimeSlotByUser(event.id, user?.id);
 
   const useSetTimeSlotMutation = useSetTimeSlots(event.id, user.id);
+
+  const useDeleteUserMutation = useDeleteUser(event, setEditUser);
 
   // Use session storage, because selection clears when page is tabbed out.
   const [currTimeSlots, setCurrTimeSlots] = useSessionState<
@@ -68,6 +72,11 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
     handleSessionClear(`timeslots-${user.id}`);
   };
 
+  const handleDeleteUser = () => {
+    useDeleteUserMutation.mutate(user.id);
+    handleSessionClear(`timeslots-${user.id}`);
+  };
+
   const handleClear = () => {
     setCurrTimeSlots([]);
   };
@@ -88,7 +97,7 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
       </div>
       <div className="col-span-1 flex flex-col gap-5">
         <div>
-          <h1 className="font-medium text-lg">Editing {user.name}</h1>
+          <h1 className="font-semibold text-lg">Editing {user.name}</h1>
           <p className="text-sm text-gray-500">
             Click or drag to select and deselect availability
           </p>
@@ -105,6 +114,10 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
               Cancel
             </Button>
           </div>
+          <Separator className="my-3" />
+          <Button variant="destructiveOutline" onClick={handleDeleteUser}>
+            Delete user
+          </Button>
         </div>
       </div>
     </div>

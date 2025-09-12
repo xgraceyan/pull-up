@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCreateUser } from "@/hooks/useUser";
 import type { Event } from "@/lib/event";
-import type { CreateUserForm, User } from "@/lib/user";
+import type { User, UserPayload } from "@/lib/user";
 import { useState } from "react";
 
 interface CreateUserDialogProps {
@@ -25,9 +25,9 @@ export const CreateUserDialog = ({
   event,
   setEditUser,
 }: CreateUserDialogProps) => {
-  const [formData, setFormData] = useState<CreateUserForm>({
+  const [formData, setFormData] = useState<UserPayload>({
     name: "",
-    password: "",
+    passwordRaw: "",
   });
 
   const useCreateUserMutation = useCreateUser(event);
@@ -45,7 +45,7 @@ export const CreateUserDialog = ({
           setEditUser(newUser);
         },
       });
-      setFormData({ name: "", password: "" });
+      setFormData({ name: "", passwordRaw: "" });
     } catch (error) {
       console.error(error);
     }
@@ -70,10 +70,10 @@ export const CreateUserDialog = ({
               <Input id="name" name="name" onChange={handleChange} />
             </div>
             <div className="grid gap-3">
-              <Label htmlFor="password">Password (optional)</Label>
+              <Label htmlFor="passwordRaw">Password (optional)</Label>
               <Input
-                id="password"
-                name="password"
+                id="passwordRaw"
+                name="passwordRaw"
                 type="password"
                 placeholder="Leave blank for no password"
                 onChange={handleChange}

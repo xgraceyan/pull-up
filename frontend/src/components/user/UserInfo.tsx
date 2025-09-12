@@ -1,5 +1,6 @@
 import type { User } from "@/lib/user";
 import { Button } from "../ui/button";
+
 import { CreateUserDialog } from "./CreateUserDialog";
 import type { Event } from "@/lib/event";
 import { useState } from "react";
@@ -16,7 +17,7 @@ export const UserInfo = ({ event, users, setEditUser }: UserInfoProps) => {
   const [loginUser, setLoginUser] = useState<User | null>(null);
 
   return (
-    <div>
+    <div className="flex flex-col gap-3">
       {loginUser && (
         <LoginDialog
           user={loginUser}
@@ -26,26 +27,35 @@ export const UserInfo = ({ event, users, setEditUser }: UserInfoProps) => {
           setEditUser={setEditUser}
         />
       )}
-      <h1 className="font-bold">Users</h1>
-      {users.map((user) => (
-        <div className="p-2" key={user.id}>
-          <a
-            href=""
-            onClick={(e) => {
-              e.preventDefault();
-              if (user.passwordHash.length > 0) {
-                setLoginOpen(true);
-                setLoginUser(user);
-              } else {
-                setEditUser(user);
-              }
-            }}
-          >
-            {user.name}
-          </a>
-        </div>
-      ))}
-      <div className="m-2">
+      <div>
+        <h1 className="font-semibold text-lg">Users</h1>
+        <p className="text-sm text-gray-500">
+          Click to edit individual availability
+        </p>
+      </div>
+      <div className="">
+        {users.map((user) => (
+          <div className="px-1" key={user.id}>
+            <Button
+              variant="link"
+              className="text-gray-850 font-medium text-md"
+              onClick={(e) => {
+                e.preventDefault();
+                if (user.passwordHash.length > 0) {
+                  setLoginOpen(true);
+                  setLoginUser(user);
+                } else {
+                  setEditUser(user);
+                }
+              }}
+            >
+              {user.name}
+            </Button>
+          </div>
+        ))}
+      </div>
+
+      <div className="px-10">
         <CreateUserDialog event={event} setEditUser={setEditUser} />
       </div>
     </div>

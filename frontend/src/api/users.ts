@@ -1,22 +1,16 @@
 import type { DayOfWeek } from "@/lib/calendar";
-import type { CreateUserForm, User, UserPayload, UserRaw } from "@/lib/user";
+import type { User, UserPayload, UserRaw } from "@/lib/user";
 import { apiFetch } from "./apiUtils";
 
 export async function createUser(
   eventId: string,
-  user: CreateUserForm
+  user: UserPayload
 ): Promise<User> {
-  const userPayload: UserPayload = {
-    name: user.name,
-    passwordRaw: user.password,
-    eventId,
-  };
-
   return await apiFetch(
-    "/users/create",
+    `/events/${eventId}/users/create`,
     {
       method: "POST",
-      body: JSON.stringify(userPayload),
+      body: JSON.stringify(user),
     },
     "Failed to create user"
   );
@@ -24,17 +18,30 @@ export async function createUser(
 
 export async function loginUser(
   eventId: string,
-  name: string,
-  passwordRaw: string
+  user: UserPayload
 ): Promise<User> {
-  const userPayload = {
-    name,
-    passwordRaw,
-  };
-  return await apiFetch(`/users/event/${eventId}/login`, {
+  return await apiFetch(`/events/${eventId}/users/login`, {
     method: "POST",
-    body: JSON.stringify(userPayload),
+    body: JSON.stringify(user),
   });
+}
+
+export async function deleteUser(
+  eventId: string,
+  userId: string
+): Promise<void> {
+  const res = await fetch(
+    `${
+      import.meta.env.VITE_API_URL
+    }/api/events/${eventId}/users/${userId}/delete`,
+    {
+      method: "DELETE",
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to delete user");
+  }
 }
 
 export async function fetchUsersByWeekDayTime(
