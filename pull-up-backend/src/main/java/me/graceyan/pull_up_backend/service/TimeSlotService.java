@@ -122,6 +122,10 @@ public class TimeSlotService {
         return deleteResult.getDeletedCount();
     }
 
+    public long deleteTimeSlotsByUser(ObjectId eventId, ObjectId userId) {
+        return timeSlotRepository.deleteTimeSlotsByEventIdAndUserId(eventId, userId);
+    }
+
     public List<TimeSlot> requestToTimeSlot(List<TimeSlotRequest> timeSlotRequests) {
         List<TimeSlot> timeSlots = new ArrayList<>();
         for(TimeSlotRequest req : timeSlotRequests) {

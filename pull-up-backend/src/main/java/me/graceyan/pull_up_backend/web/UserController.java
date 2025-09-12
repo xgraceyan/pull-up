@@ -16,31 +16,37 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
-    @GetMapping
+    @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
         return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }
 
     // For testing only, exposes db id
-    @GetMapping("/{id}")
+    @GetMapping("/users/{id}")
     public ResponseEntity<Optional<User>> getById(@PathVariable ObjectId id) {
         return new ResponseEntity<>(userService.getById(id), HttpStatus.OK);
     }
 
-    @PostMapping("/event/{eventId}/login")
+    @PostMapping("/events/{eventId}/users/login")
     public ResponseEntity<User> loginUser(@PathVariable ObjectId eventId, @RequestBody UserLoginRequest loginRequest) {
         return new ResponseEntity<>(userService.login(loginRequest.getName(), loginRequest.getPasswordRaw(), eventId), HttpStatus.OK);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<User> createUser(@RequestBody Map<String, String> payload) {
-        return new ResponseEntity<>(userService.createUser(payload.get("name"), payload.get("passwordRaw"), new ObjectId(payload.get("eventId"))), HttpStatus.CREATED);
+    @PostMapping("/events/{eventId}/users/create")
+    public ResponseEntity<User> createUser(@PathVariable ObjectId eventId, @RequestBody Map<String, String> payload) {
+        return new ResponseEntity<>(userService.createUser(payload.get("name"), payload.get("passwordRaw"), eventId), HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/events/{eventId}/users/{userId}/delete")
+    public ResponseEntity<String> deleteUserAndTimeslots(@PathVariable ObjectId eventId, @PathVariable ObjectId userId) {
+        userService.deleteUserAndTimeslots(userId, eventId);
+        return ResponseEntity.noContent().build();
     }
 
     @ExceptionHandler(UserCreateException.class)

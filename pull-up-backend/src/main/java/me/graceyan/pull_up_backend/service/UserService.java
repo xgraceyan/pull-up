@@ -5,6 +5,7 @@ import me.graceyan.pull_up_backend.exception.UserCreateException;
 import me.graceyan.pull_up_backend.exception.UserLoginException;
 import me.graceyan.pull_up_backend.model.Event;
 import me.graceyan.pull_up_backend.model.User;
+import me.graceyan.pull_up_backend.repository.TimeSlotRepository;
 import me.graceyan.pull_up_backend.repository.UserRepository;
 import org.bson.types.ObjectId;
 import org.springframework.dao.DuplicateKeyException;
@@ -13,6 +14,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
@@ -24,6 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final MongoTemplate mongoTemplate;
     private final PasswordEncoder passwordEncoder;
+    private final TimeSlotRepository timeSlotRepository;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -54,5 +57,11 @@ public class UserService {
         } catch(DuplicateKeyException e) {
             throw new UserCreateException("Duplicate user found", e);
         }
+    }
+
+    @Transactional
+    public void deleteUserAndTimeslots(ObjectId userId, ObjectId eventId) {
+        timeSlotRepository.deleteTimeSlotsByEventIdAndUserId(eventId, userId);
+        userRepository.deleteUserByIdAndEventId(userId, eventId);
     }
 }

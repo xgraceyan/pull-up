@@ -28,10 +28,6 @@ public interface TimeSlotRepository extends MongoRepository<TimeSlot, ObjectId> 
     @Query("{ 'eventId': ?0, 'weekDay': ?1, 'startTime': { $lte: ?2 }, 'endTime': { $gte: ?3 } }")
     List<TimeSlot> findTimeSlotsByWeekDayTime(ObjectId eventId, DayOfWeek weekDay, LocalTime startTime, LocalTime endTime);
 
-    void deleteTimeSlotById(ObjectId id);
-    void deleteTimeSlotByEventIdAndUserIdAndDate(ObjectId eventId, ObjectId userId, LocalDate date);
-    void deleteTimeSlotByEventIdAndUserIdAndDateAndStartTimeGreaterThanEqualAndEndTimeIsLessThanEqual(ObjectId eventId, ObjectId userId, LocalDate date, LocalTime startTime, LocalTime endTime);
-    void deleteTimeSlotByEventIdAndUserIdAndWeekDayAndStartTimeGreaterThanEqualAndEndTimeLessThanEqual(ObjectId eventId, ObjectId userId, DayOfWeek weekDay, LocalTime startTime, LocalTime endTime);
-
+    long deleteTimeSlotsByEventIdAndUserId(ObjectId eventId, ObjectId userId);
 }
 

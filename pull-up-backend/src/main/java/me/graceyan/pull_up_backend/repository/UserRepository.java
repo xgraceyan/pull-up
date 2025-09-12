@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends MongoRepository<User, ObjectId> {
     Optional<User> findUserByNameAndEventId(String name, ObjectId eventId);
+    long deleteUserByIdAndEventId(ObjectId id, ObjectId eventId);
 }
