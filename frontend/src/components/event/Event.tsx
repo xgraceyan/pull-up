@@ -17,6 +17,8 @@ import { EditCalendar } from "../calendar/EditCalendar/EditCalendar";
 import { EditRoot } from "../calendar/EditCalendar/EditRoot";
 import { TimeSlotInfo } from "./TimeSlotInfo";
 import { UserInfo } from "../user/UserInfo";
+import { Button } from "../ui/button";
+import { CopyLinkButton } from "../ui/CopyLinkButton";
 
 export function Event() {
   const [timeSlot, setTimeSlot] = useState<TimeSlotEvent | null>(null); // Time slot hovered
@@ -50,9 +52,17 @@ export function Event() {
     <TimeSlotInfo timeSlot={timeSlot} event={event} />
   );
 
+  const eventUrl = `${import.meta.env.VITE_BASE_URL}/${event.urlAlias}`;
+
   return (
     <div className="flex flex-col h-screen pt-10">
-      <p className="text-xl font-bold text-center">{event.name}</p>
+      <div className="text-center flex flex-col gap-2">
+        <h1 className="text-xl font-bold text-center">{event.name}</h1>
+        <p className="text-sm text-gray-500">
+          Invite others to join using the link &nbsp;
+          <CopyLinkButton url={eventUrl} />
+        </p>
+      </div>
       {editUser && editWeekDayTimeCalendar}
 
       {!editUser && (

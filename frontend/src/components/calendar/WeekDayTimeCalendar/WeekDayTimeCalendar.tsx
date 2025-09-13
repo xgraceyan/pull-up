@@ -76,11 +76,14 @@ export const WeekDayTimeCalendar = ({
         }}
         eventPropGetter={(timeSlotEvent: TimeSlotEvent) => {
           return {
-            className: "timeslot-event",
+            className: "timeslot-event !bg-primary",
             style: {
               opacity: timeSlotEvent.userIds.length / event.userIds.length,
             },
           };
+        }}
+        slotPropGetter={() => {
+          return { className: "text-gray-500" };
         }}
         {...calendarProps}
       />
