@@ -121,7 +121,7 @@ export function loadTimeSlotToCalendar<T extends EventType>(
     } else if (slot.endTime) {
       return combineDayAndTime(slot.date, slot.endTime);
     } else {
-      return slot.date;
+      return moment(slot.date).add(1, "day").toDate();
     }
   };
 
@@ -137,6 +137,7 @@ export function loadTimeSlotToCalendar<T extends EventType>(
         end,
         userIds: [slot.userId],
         status: slot.status,
+        allDay: !slot.weekDay && !slot.startTime && !slot.endTime,
       };
       newTimeSlots.push(newEvent);
     } else {

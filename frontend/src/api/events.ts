@@ -13,8 +13,8 @@ export async function fetchEventFromUrl(urlAlias: string): Promise<Event> {
     ...raw_event,
     startTime: timeStringToDate(raw_event.startTime),
     endTime: timeStringToDate(raw_event.endTime),
-    startDate: moment(raw_event.startDate).toDate(),
-    endDate: moment(raw_event.endDate).toDate(),
+    startDate: moment(raw_event.startDate).local().startOf("day").toDate(),
+    endDate: moment(raw_event.endDate).local().startOf("day").toDate(),
     createdAt: moment(raw_event.createdAt).toDate(),
   };
 }

@@ -52,21 +52,23 @@ export const EditCalendar = ({
   };
 
   return (
-    <Calendar
-      event={event}
-      timeSlots={currTimeSlots}
-      calendarProps={{
-        selectable: true,
-        onSelectSlot: handleSelect,
-        onSelectEvent: handleSelectEvent,
-        onSelecting: (range) => {
-          if (!dragOriginRef.current) dragOriginRef.current = range.start;
-          return true;
-        },
-        components: {
-          eventWrapper: undefined,
-        },
-      }}
-    />
+    <div className="edit-calendar">
+      <Calendar
+        event={event}
+        timeSlots={currTimeSlots}
+        calendarProps={{
+          selectable: true,
+          onSelectSlot: handleSelect,
+          onSelectEvent: handleSelectEvent,
+          onSelecting: (range) => {
+            if (!dragOriginRef.current) dragOriginRef.current = range.start;
+            return true;
+          },
+          components: {
+            eventWrapper: undefined,
+          },
+        }}
+      />
+    </div>
   );
 };

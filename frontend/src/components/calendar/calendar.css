@@ -1,3 +1,5 @@
+@reference "tailwindcss";
+
 .rbc-allday-cell {
   display: none;
 }
@@ -10,7 +12,8 @@
   height: 50px;
 }
 
-.rbc-time-view {
+.rbc-time-view,
+.rbc-month-view {
   border-left: none;
   border-top: none;
 }
@@ -43,4 +46,27 @@
   color: transparent;
   min-width: 100%;
   left: 0 !important;
+  height: 100%;
+}
+
+.rbc-date-cell,
+.edit-calendar .custom-date-header {
+  @apply text-gray-500;
+}
+
+.rbc-header {
+  @apply text-gray-600;
+}
+
+.rbc-row {
+  display: flex !important;
+}
+
+.day-calendar .rbc-row .rbc-date-cell {
+  height: 0;
+  z-index: 10;
+}
+
+.edit-calendar .rbc-row .rbc-date-cell {
+  height: 100%;
 }

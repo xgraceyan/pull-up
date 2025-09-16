@@ -2,11 +2,13 @@ import moment from "moment";
 import {
   momentLocalizer,
   type CalendarProps,
+  type NavigateAction,
   type Event as RBCEvent,
   type SlotInfo,
+  type View,
 } from "react-big-calendar";
 import type { TimeSlotStatus } from "./timeslot";
-import type { Event } from "./event";
+import type { Event, EventType } from "./event";
 
 export const localizer = momentLocalizer(moment);
 
@@ -94,6 +96,25 @@ export function formatDate(date: Date) {
   return moment(date).format("YYYY-MM-DD");
 }
 
+export function formatSlotInfoTime<T extends EventType>(
+  start: Date,
+  end: Date,
+  eventType: T
+) {
+  switch (eventType) {
+    case "weekdayTime":
+      return `${moment(start).format("dddd")}\n${formatTime(
+        start
+      )} - ${formatTime(end)}`;
+    case "dayTime":
+      return `${moment(start).format("dddd, MMM D")}\n${formatTime(
+        start
+      )} - ${formatTime(end)}`;
+    case "day":
+      return moment(start).format("dddd, MMM D");
+  }
+}
+
 export function findTimeSlotInSelection(
   start: Date,
   timeSlots: TimeSlotEvent[]
@@ -108,7 +129,8 @@ export function findTimeSlotInSelection(
 export function addSlots(
   userId: string,
   slotInfo: SlotInfo,
-  timeSlots: TimeSlotEvent[]
+  timeSlots: TimeSlotEvent[],
+  eventType?: EventType
 ) {
   const newTimeSlots: TimeSlotEvent[] = [];
 
@@ -124,6 +146,7 @@ export function addSlots(
           end: endTime,
           userIds: [userId],
           status: "available",
+          allDay: eventType === "day",
         };
         newTimeSlots.push(newEvent);
       }
@@ -137,4 +160,76 @@ export function removeSlots(slotInfo: SlotInfo, timeSlots: TimeSlotEvent[]) {
   const startSet = new Set(slotInfo.slots.map((slot) => slot.getTime()));
   startSet.delete(slotInfo.end.getTime()); // Delete last since slots are start -> start+30
   return timeSlots.filter((event) => !startSet.has(event.start.getTime()));
+}
+
+export function disableRemainingDays(
+  eventType: EventType,
+  date: Date,
+  action: NavigateAction,
+  setDisabledDates: (value: React.SetStateAction<Date[]>) => void
+) {
+  if (eventType === "weekdayTime") return;
+
+  const days: Date[] = [];
+  const mode = eventType === "dayTime" ? "week" : "month";
+
+  if (action === "NEXT") {
+    const endOfWeek = moment(date).endOf(mode);
+    let currDate = moment(date).clone();
+    while (currDate.isBefore(endOfWeek, "day")) {
+      currDate = currDate.add(1, "day").clone();
+      days.push(currDate.toDate());
+    }
+  } else {
+    const startOfWeek = moment(date).startOf(mode);
+    let currDate = moment(date).clone();
+    while (currDate.isAfter(startOfWeek, "day")) {
+      currDate = currDate.subtract(1, "day").clone();
+      days.push(currDate.toDate());
+    }
+  }
+  setDisabledDates((prev) => [...prev, ...days]);
+}
+
+export function handleNavigateFactory(
+  event: Event,
+  currentDate: Date,
+  setCurrentDate: (value: React.SetStateAction<Date>) => void,
+  setDisabledDates: (value: React.SetStateAction<Date[]>) => void
+) {
+  if (event.type === "weekdayTime") return;
+
+  return (newDate: Date, view: View, action: NavigateAction) => {
+    const mode = event.type === "dayTime" ? "week" : "month";
+
+    if (action === "NEXT") {
+      const nextWeek = moment(currentDate).add(1, mode);
+      const nextWeekEnd = nextWeek.endOf(mode);
+
+      if (nextWeekEnd.isSameOrBefore(event.endDate, "day")) {
+        setCurrentDate(nextWeek.toDate());
+      } else {
+        setCurrentDate(event.endDate);
+        disableRemainingDays(
+          event.type,
+          event.endDate,
+          action,
+          setDisabledDates
+        );
+      }
+    } else if (action === "PREV") {
+      const prevWeek = moment(currentDate).subtract(1, mode);
+      if (prevWeek.isSameOrAfter(event.startDate, "day")) {
+        setCurrentDate(prevWeek.toDate());
+      } else {
+        setCurrentDate(event.startDate);
+        disableRemainingDays(
+          event.type,
+          event.startDate,
+          action,
+          setDisabledDates
+        );
+      }
+    }
+  };
 }

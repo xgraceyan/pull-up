@@ -2,8 +2,11 @@ import {
   Calendar,
   DateLocalizer,
   type CalendarProps,
+  type DateCellWrapperProps,
+  type DateHeaderProps,
   type EventWrapperProps,
   type NavigateAction,
+  type SlotInfo,
   type View,
 } from "react-big-calendar";
 import { useEffect, useMemo, useState, type ComponentType } from "react";
@@ -18,20 +21,21 @@ import {
 import type { Event } from "@/lib/event";
 import moment from "moment";
 import { CalendarToolbar } from "../CalendarToolbar";
+import { CustomDateHeader } from "./CustomDateHeader";
 
-interface DayTimeCalendarProps {
+interface DayCalendarProps {
   event: Event;
   timeSlots: TimeSlotEvent[];
   setTimeSlot?: (value: React.SetStateAction<TimeSlotEvent | null>) => void;
   calendarProps?: Partial<CalendarProps<TimeSlotEvent>>;
 }
 
-export const DayTimeCalendar = ({
+export const DayCalendar = ({
   event,
   timeSlots,
   setTimeSlot,
   calendarProps,
-}: DayTimeCalendarProps) => {
+}: DayCalendarProps) => {
   const [currentDate, setCurrentDate] = useState<Date>(event.startDate);
   const [disabledDates, setDisabledDates] = useState<Date[]>([]);
 
@@ -45,6 +49,7 @@ export const DayTimeCalendar = ({
 
   const eventWrapper = ({ event, children }: TimeSlotEventWrapperProps) => (
     <div
+      className="h-full min-h-[100px]"
       onMouseEnter={() => {
         setTimeSlot?.(event);
       }}
@@ -62,15 +67,15 @@ export const DayTimeCalendar = ({
   }, [event.startDate, event.endDate]);
 
   return (
-    <div className="h-[600px]">
+    <div className="h-[600px] day-calendar">
       <Calendar
         localizer={localizer}
         startAccessor="start"
         endAccessor="end"
         events={timeSlots}
-        defaultView={"week"}
+        defaultView={"month"}
         views={{
-          week: true,
+          month: true,
         }}
         defaultDate={event.startDate}
         date={currentDate}
@@ -94,12 +99,20 @@ export const DayTimeCalendar = ({
           eventWrapper: eventWrapper as unknown as ComponentType<
             EventWrapperProps<TimeSlotEvent>
           >,
-          toolbar: CalendarToolbar,
+
+          toolbar: (props) => {
+            return <CalendarToolbar {...props} eventType={event.type} />;
+          },
+          month: {
+            dateHeader: (props) => (
+              <CustomDateHeader {...props} timeSlots={timeSlots} />
+            ),
+          },
           ...calendarProps?.components,
         }}
         eventPropGetter={(timeSlotEvent: TimeSlotEvent) => {
           return {
-            className: "timeslot-event !bg-primary",
+            className: "timeslot-event !bg-primary h-full",
             style: {
               opacity:
                 0.9 * (timeSlotEvent.userIds.length / event.userIds.length),
@@ -112,17 +125,14 @@ export const DayTimeCalendar = ({
           );
           if (isDisabled) {
             return {
-              className: "bg-gray-200 text-gray-400 pointer-events-none",
+              className: "text-gray-300 rbc-off-range-bg z-1",
               style: {
                 cursor: "not-allowed",
                 pointerEvents: "none",
-                opacity: 0.6,
+                userSelect: "none",
               },
             };
           }
-          return { className: "text-gray-600" };
-        }}
-        slotPropGetter={() => {
           return { className: "text-gray-500" };
         }}
       />

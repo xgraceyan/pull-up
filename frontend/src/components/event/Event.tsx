@@ -21,6 +21,7 @@ import { UserInfo } from "../user/UserInfo";
 import { Button } from "../ui/button";
 import { CopyLinkButton } from "../ui/CopyLinkButton";
 import { DayTimeCalendar } from "../calendar/DayTimeCalendar/DayTimeCalendar";
+import { DayCalendar } from "../calendar/DayCalendar/DayCalendar";
 
 export function Event() {
   const [timeSlot, setTimeSlot] = useState<TimeSlotEvent | null>(null); // Time slot hovered
@@ -45,6 +46,8 @@ export function Event() {
         return WeekDayTimeCalendar;
       case "dayTime":
         return DayTimeCalendar;
+      case "day":
+        return DayCalendar;
       default:
         return null;
     }

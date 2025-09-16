@@ -1,4 +1,8 @@
-import { formatTime, type TimeSlotEvent } from "@/lib/calendar";
+import {
+  formatSlotInfoTime,
+  formatTime,
+  type TimeSlotEvent,
+} from "@/lib/calendar";
 import type { Event } from "@/lib/event";
 import { getAllUsersFromId, type User } from "@/lib/user";
 import moment from "moment";
@@ -13,9 +17,8 @@ export const TimeSlotInfo = ({ timeSlot, event }: TimeSlotInfoProps) => {
   const users = getAllUsersFromId(timeSlot?.userIds, event.userIds);
   return (
     <div className="flex flex-col gap-3">
-      <h1 className="font-semibold text-md">
-        {moment(timeSlot.start).format("dddd")} {formatTime(timeSlot.start)} -{" "}
-        {formatTime(timeSlot.end)}
+      <h1 className="font-semibold text-md whitespace-pre">
+        {formatSlotInfoTime(timeSlot.start, timeSlot.end, event.type)}
       </h1>
 
       <div className="w-1/2 mx-auto">
