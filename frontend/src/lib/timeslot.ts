@@ -1,4 +1,6 @@
+import type { CalendarType } from "@/calendar/CalendarType";
 import {
+  combineDayAndTime,
   combineWeekDayAndTime,
   dateToTimeString,
   dateToWeekDay,
@@ -8,13 +10,14 @@ import {
   type DayOfWeek,
   type TimeSlotEvent,
 } from "./calendar";
-import type { Event } from "./event";
+import type { Event, EventType } from "./event";
 import type { User } from "./user";
+import moment from "moment";
 
 // TODO: add "not preferred" status
 export type TimeSlotStatus = "available" | "unavailable";
 
-export type TimeSlot = {
+export type BaseTimeSlot = {
   id: string;
   userId: string;
   eventId: string;
@@ -24,6 +27,13 @@ export type TimeSlot = {
   weekDay: DayOfWeek;
   status: TimeSlotStatus;
   updatedAt: Date;
+};
+
+export type TimeSlot<T extends EventType> = BaseTimeSlot & {
+  date: T extends "weekdayTime" ? null : Date;
+  startTime: T extends "day" ? null : Date;
+  endTime: T extends "day" ? null : Date;
+  weekDay: T extends "weekdayTime" ? DayOfWeek : null;
 };
 
 // Timeslots sent back from API
@@ -50,19 +60,25 @@ export type TimeSlotPayload = {
   status: TimeSlotStatus;
 };
 
-export function convertRawTimeslots(rawTimeSlots: TimeSlotRaw[]): TimeSlot[] {
+export function convertRawTimeslots<T extends EventType>(
+  rawTimeSlots: TimeSlotRaw[]
+): TimeSlot<T>[] {
+  console.log("Raw", rawTimeSlots);
+
   return rawTimeSlots.map((rawTimeSlot: TimeSlotRaw) => ({
     ...rawTimeSlot,
-    date: rawTimeSlot.date ? new Date(rawTimeSlot.date) : new Date(),
-    startTime: rawTimeSlot.startTime
+    date: (rawTimeSlot.date
+      ? moment(rawTimeSlot.date).toDate() // parse date
+      : null) as TimeSlot<T>["date"],
+    startTime: (rawTimeSlot.startTime
       ? timeStringToDate(rawTimeSlot.startTime)
-      : new Date(),
-    endTime: rawTimeSlot.endTime
+      : null) as TimeSlot<T>["startTime"],
+    endTime: (rawTimeSlot.endTime
       ? timeStringToDate(rawTimeSlot.endTime)
-      : new Date(),
-    weekDay: rawTimeSlot.weekDay ?? "SUNDAY",
+      : null) as TimeSlot<T>["endTime"],
+    weekDay: (rawTimeSlot.weekDay ?? null) as TimeSlot<T>["weekDay"],
     updatedAt: rawTimeSlot.updatedAt
-      ? new Date(rawTimeSlot.updatedAt)
+      ? moment(rawTimeSlot.updatedAt).toDate()
       : new Date(),
   }));
 }
@@ -75,25 +91,48 @@ export function convertToPayloadTimeslots(
   return timeSlotEvents.map((timeSlot) => ({
     userId: user.id,
     eventId: event.id,
-    date: event.type == "weekdayTime" ? null : formatDate(timeSlot.start),
-    startTime: event.type == "day" ? null : dateToTimeString(timeSlot.start),
-    endTime: event.type == "day" ? null : dateToTimeString(timeSlot.end),
-    weekDay: event.type == "weekdayTime" ? dateToWeekDay(timeSlot.start) : null,
+    date: event.type === "weekdayTime" ? null : formatDate(timeSlot.start),
+    startTime: event.type === "day" ? null : dateToTimeString(timeSlot.start),
+    endTime: event.type === "day" ? null : dateToTimeString(timeSlot.end),
+    weekDay:
+      event.type === "weekdayTime" ? dateToWeekDay(timeSlot.start) : null,
     status: timeSlot.status,
   }));
 }
 
-export function loadTimeSlotToCalendar(timeSlots: TimeSlot[]): TimeSlotEvent[] {
+export function loadTimeSlotToCalendar<T extends EventType>(
+  timeSlots: TimeSlot<T>[]
+): TimeSlotEvent[] {
   const newTimeSlots: TimeSlotEvent[] = [];
 
+  const getStart = (slot: TimeSlot<T>) => {
+    if (slot.weekDay) {
+      return combineWeekDayAndTime(slot.weekDay, slot.startTime);
+    } else if (slot.startTime) {
+      return combineDayAndTime(slot.date, slot.startTime);
+    } else {
+      return slot.date;
+    }
+  };
+
+  const getEnd = (slot: TimeSlot<T>) => {
+    if (slot.weekDay) {
+      return combineWeekDayAndTime(slot.weekDay, slot.endTime);
+    } else if (slot.endTime) {
+      return combineDayAndTime(slot.date, slot.endTime);
+    } else {
+      return slot.date;
+    }
+  };
+
   for (const slot of timeSlots) {
-    const start = combineWeekDayAndTime(slot.weekDay, slot.startTime);
-    const end = combineWeekDayAndTime(slot.weekDay, slot.endTime);
+    const start = getStart(slot);
+    const end = getEnd(slot);
     const existing = findTimeSlotInSelection(start, newTimeSlots);
     if (!existing) {
       const newEvent: TimeSlotEvent = {
         id: slot.id,
-        title: "Selected",
+        title: "1 available",
         start,
         end,
         userIds: [slot.userId],
@@ -102,7 +141,9 @@ export function loadTimeSlotToCalendar(timeSlots: TimeSlot[]): TimeSlotEvent[] {
       newTimeSlots.push(newEvent);
     } else {
       existing.userIds.push(slot.userId);
+      existing.title = `${existing.userIds.length} available`;
     }
   }
+
   return newTimeSlots;
 }

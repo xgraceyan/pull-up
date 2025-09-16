@@ -1,32 +1,34 @@
 import {
   convertRawTimeslots,
+  type BaseTimeSlot,
   type TimeSlot,
   type TimeSlotPayload,
   type TimeSlotRaw,
 } from "@/lib/timeslot";
 import { apiFetch } from "./apiUtils";
+import { type Event, type EventType } from "@/lib/event";
 
-export async function fetchAllEventTimeSlots(
-  eventId: string
-): Promise<TimeSlot[]> {
+export async function fetchAllEventTimeSlots<T extends EventType>(
+  event: Event & { type: T }
+): Promise<TimeSlot<T>[]> {
   const rawTimeSlots: TimeSlotRaw[] = await apiFetch(
-    `/timeslots/event/${eventId}`,
+    `/timeslots/event/${event.id}`,
     { method: "GET" },
     "Failed to fetch timeslots"
   );
-  return convertRawTimeslots(rawTimeSlots);
+  return convertRawTimeslots<T>(rawTimeSlots);
 }
 
-export async function fetchAllFromUser(
-  eventId: string,
+export async function fetchAllFromUser<T extends EventType>(
+  event: Event & { type: T },
   userId: string
-): Promise<TimeSlot[]> {
+): Promise<TimeSlot<T>[]> {
   const rawTimeSlots: TimeSlotRaw[] = await apiFetch(
-    `/timeslots/event/${eventId}/user/${userId}`,
+    `/timeslots/event/${event.id}/user/${userId}`,
     { method: "GET" },
     "Failed to fetch time slots for user"
   );
-  return convertRawTimeslots(rawTimeSlots);
+  return convertRawTimeslots<T>(rawTimeSlots);
 }
 
 export async function setTimeSlots(

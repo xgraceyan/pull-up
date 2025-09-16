@@ -1,6 +1,6 @@
 import type { Event, EventType } from "@/lib/event";
 import { useEffect, useRef, useState } from "react";
-import type { Calendar, SlotInfo } from "react-big-calendar";
+import type { Calendar, CalendarProps, SlotInfo } from "react-big-calendar";
 import { WeekDayTimeCalendar } from "../WeekDayTimeCalendar/WeekDayTimeCalendar";
 import type { User } from "@/lib/user";
 import { useTimeSlotByUser } from "@/hooks/useTimeSlot";
@@ -9,10 +9,12 @@ import {
   addSlots,
   findTimeSlotInSelection,
   removeSlots,
+  type CalendarComponent,
   type TimeSlotEvent,
 } from "@/lib/calendar";
 
 interface EditCalendarProps {
+  Calendar: CalendarComponent;
   event: Event;
   user: User;
   currTimeSlots: TimeSlotEvent[];
@@ -22,6 +24,7 @@ interface EditCalendarProps {
 }
 
 export const EditCalendar = ({
+  Calendar,
   event,
   user,
   currTimeSlots,
@@ -49,8 +52,7 @@ export const EditCalendar = ({
   };
 
   return (
-    <WeekDayTimeCalendar
-      // key={currTimeSlots.length}
+    <Calendar
       event={event}
       timeSlots={currTimeSlots}
       calendarProps={{

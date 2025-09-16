@@ -5,7 +5,7 @@ import {
   type EventWrapperProps,
 } from "react-big-calendar";
 import { useMemo, type ComponentType } from "react";
-import "./week-day-time-calendar.css";
+import "../calendar.css";
 import {
   localizer,
   type TimeSlotEvent,
@@ -78,9 +78,13 @@ export const WeekDayTimeCalendar = ({
           return {
             className: "timeslot-event !bg-primary",
             style: {
-              opacity: timeSlotEvent.userIds.length / event.userIds.length,
+              opacity:
+                0.9 * (timeSlotEvent.userIds.length / event.userIds.length),
             },
           };
+        }}
+        dayPropGetter={() => {
+          return { className: "text-gray-600" };
         }}
         slotPropGetter={() => {
           return { className: "text-gray-500" };

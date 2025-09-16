@@ -1,10 +1,12 @@
 import moment from "moment";
 import {
   momentLocalizer,
+  type CalendarProps,
   type Event as RBCEvent,
   type SlotInfo,
 } from "react-big-calendar";
 import type { TimeSlotStatus } from "./timeslot";
+import type { Event } from "./event";
 
 export const localizer = momentLocalizer(moment);
 
@@ -28,6 +30,26 @@ export const DayOfWeekMap: Record<DayOfWeek, number> = {
   FRIDAY: 5,
   SATURDAY: 6,
 };
+
+export type TimeSlotEvent = RBCEvent & {
+  id: string;
+  start: Date;
+  end: Date;
+  userIds: string[];
+  status: TimeSlotStatus;
+};
+
+export type TimeSlotEventWrapperProps = {
+  event: TimeSlotEvent;
+  children: React.ReactNode;
+};
+
+export type CalendarComponent = React.ComponentType<{
+  event: Event;
+  timeSlots: TimeSlotEvent[];
+  calendarProps: Partial<CalendarProps<TimeSlotEvent, object>> | undefined;
+  setTimeSlot?: (value: React.SetStateAction<TimeSlotEvent | null>) => void;
+}>;
 
 export function dayToNum(day: DayOfWeek): number {
   return DayOfWeekMap[day];
@@ -54,6 +76,12 @@ export function combineWeekDayAndTime(weekDay: DayOfWeek, time: Date) {
   return base;
 }
 
+export function combineDayAndTime(day: Date, time: Date) {
+  const base = new Date(day);
+  base.setHours(time.getHours(), time.getMinutes(), 0, 0);
+  return base;
+}
+
 export function dateToWeekDay(date: Date): DayOfWeek {
   return DAYS_OF_WEEK[date.getDay()];
 }
@@ -65,40 +93,6 @@ export function formatTime(time: Date) {
 export function formatDate(date: Date) {
   return moment(date).format("YYYY-MM-DD");
 }
-
-export const events = [
-  {
-    id: 0,
-    title: "Team Meeting",
-    start: new Date(2025, 8, 1, 9, 0, 0), // Monday
-    end: new Date(2025, 8, 1, 10, 0, 0),
-  },
-  {
-    id: 1,
-    title: "Lunch with Sarah",
-    start: new Date(2025, 8, 3, 12, 0, 0), // Wednesday
-    end: new Date(2025, 8, 3, 13, 0, 0),
-  },
-  {
-    id: 2,
-    title: "Code Review",
-    start: new Date(2025, 8, 5, 15, 0, 0), // Friday
-    end: new Date(2025, 8, 5, 16, 0, 0),
-  },
-];
-
-export type TimeSlotEvent = RBCEvent & {
-  id: string;
-  start: Date;
-  end: Date;
-  userIds: string[];
-  status: TimeSlotStatus;
-};
-
-export type TimeSlotEventWrapperProps = {
-  event: TimeSlotEvent;
-  children: React.ReactNode;
-};
 
 export function findTimeSlotInSelection(
   start: Date,
@@ -125,7 +119,7 @@ export function addSlots(
         endTime.setMinutes(slot.getMinutes() + 30);
         const newEvent: TimeSlotEvent = {
           id: slot.getTime().toString(),
-          title: "Selected",
+          title: "1 available",
           start: slot,
           end: endTime,
           userIds: [userId],

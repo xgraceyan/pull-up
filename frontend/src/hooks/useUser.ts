@@ -59,7 +59,7 @@ export function useDeleteUser(
         queryKey: ["event", event.urlAlias],
       });
       queryClient.invalidateQueries({
-        queryKey: ["timeslot", event.id],
+        queryKey: ["timeslot", event],
       });
       setEditUser(null);
     },

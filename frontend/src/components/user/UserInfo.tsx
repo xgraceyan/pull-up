@@ -53,6 +53,12 @@ export const UserInfo = ({ event, users, setEditUser }: UserInfoProps) => {
             </Button>
           </div>
         ))}
+        {!users ||
+          (users.length == 0 && (
+            <p className="text-md text-gray-700">
+              No users yet. <br /> Add your availability with the button below!
+            </p>
+          ))}
       </div>
 
       <div className="px-10">

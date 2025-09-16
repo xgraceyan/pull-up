@@ -5,15 +5,20 @@ import {
 } from "@/api/timeslots";
 import { fetchUsersByWeekDayTime } from "@/api/users";
 import type { DayOfWeek } from "@/lib/calendar";
-import { type TimeSlot, type TimeSlotPayload } from "@/lib/timeslot";
+import type { Event, EventType } from "@/lib/event";
+import {
+  type BaseTimeSlot,
+  type TimeSlot,
+  type TimeSlotPayload,
+} from "@/lib/timeslot";
 import { type User } from "@/lib/user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export function useTimeSlot(eventId?: string) {
-  return useQuery<TimeSlot[]>({
-    queryKey: ["timeslot", eventId],
-    queryFn: () => fetchAllEventTimeSlots(eventId!),
-    enabled: !!eventId,
+export function useTimeSlot<T extends EventType>(event?: Event & { type: T }) {
+  return useQuery<TimeSlot<T>[]>({
+    queryKey: ["timeslot", event],
+    queryFn: () => fetchAllEventTimeSlots(event!),
+    enabled: !!event,
   });
 }
 
@@ -31,26 +36,29 @@ export function useUsersByWeekDayTime(
   });
 }
 
-export function useTimeSlotByUser(eventId: string, userId?: string) {
-  return useQuery<TimeSlot[]>({
-    queryKey: ["timeslotByUser", eventId, userId],
+export function useTimeSlotByUser<T extends EventType>(
+  event: Event & { type: T },
+  userId?: string
+) {
+  return useQuery<TimeSlot<T>[]>({
+    queryKey: ["timeslotByUser", event, userId],
     queryFn: () => {
       if (!userId) return Promise.resolve([]);
-      return fetchAllFromUser(eventId, userId);
+      return fetchAllFromUser(event, userId);
     },
-    enabled: !!eventId && !!userId,
+    enabled: !!event && !!userId,
   });
 }
 
-export function useSetTimeSlots(eventId: string, userId: string) {
+export function useSetTimeSlots(event: Event, userId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (timeSlots: TimeSlotPayload[]) =>
-      setTimeSlots(eventId, userId, timeSlots),
+      setTimeSlots(event.id, userId, timeSlots),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["timeslot", eventId],
+        queryKey: ["timeslot", event],
       });
     },
     onError: (error) => {

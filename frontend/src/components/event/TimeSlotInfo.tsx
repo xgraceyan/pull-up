@@ -24,7 +24,7 @@ export const TimeSlotInfo = ({ timeSlot, event }: TimeSlotInfoProps) => {
 
       <div className="flex flex-col gap-2">
         {users.map((user) => (
-          <p className="text-gray-850 font-medium text-md" key={user.id}>
+          <p className="text-primary font-medium text-md" key={user.id}>
             {user.name}
           </p>
         ))}

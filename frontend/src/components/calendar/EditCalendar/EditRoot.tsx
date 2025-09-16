@@ -3,7 +3,7 @@ import { EditCalendar } from "./EditCalendar";
 import type { User } from "@/lib/user";
 import { useSetTimeSlots, useTimeSlotByUser } from "@/hooks/useTimeSlot";
 import { useEffect } from "react";
-import { type TimeSlotEvent } from "@/lib/calendar";
+import { type CalendarComponent, type TimeSlotEvent } from "@/lib/calendar";
 import {
   convertToPayloadTimeslots,
   loadTimeSlotToCalendar,
@@ -14,19 +14,25 @@ import { handleSessionClear, useSessionState } from "@/hooks/useSessionState";
 import { useDeleteUser } from "@/hooks/useUser";
 
 interface EditRootProps {
+  Calendar: CalendarComponent;
   event: Event;
   user: User;
   setEditUser: (value: React.SetStateAction<User | null>) => void;
 }
 
-export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
+export const EditRoot = ({
+  Calendar,
+  event,
+  user,
+  setEditUser,
+}: EditRootProps) => {
   const {
     data: timeSlots,
     isLoading: slotsLoading,
     error: slotsError,
-  } = useTimeSlotByUser(event.id, user?.id);
+  } = useTimeSlotByUser(event, user?.id);
 
-  const useSetTimeSlotMutation = useSetTimeSlots(event.id, user.id);
+  const useSetTimeSlotMutation = useSetTimeSlots(event, user.id);
 
   const useDeleteUserMutation = useDeleteUser(event, setEditUser);
 
@@ -89,6 +95,7 @@ export const EditRoot = ({ event, user, setEditUser }: EditRootProps) => {
     <div className="grid grid-cols-3 gap-4 text-center p-10">
       <div className="col-span-2">
         <EditCalendar
+          Calendar={Calendar}
           event={event}
           user={user}
           currTimeSlots={currTimeSlots ?? []}

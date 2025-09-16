@@ -9,6 +9,7 @@ import {
   dateToWeekDay,
   DAYS_OF_WEEK,
   formatTime,
+  type CalendarComponent,
   type TimeSlotEvent,
 } from "@/lib/calendar";
 import moment from "moment";
@@ -19,6 +20,7 @@ import { TimeSlotInfo } from "./TimeSlotInfo";
 import { UserInfo } from "../user/UserInfo";
 import { Button } from "../ui/button";
 import { CopyLinkButton } from "../ui/CopyLinkButton";
+import { DayTimeCalendar } from "../calendar/DayTimeCalendar/DayTimeCalendar";
 
 export function Event() {
   const [timeSlot, setTimeSlot] = useState<TimeSlotEvent | null>(null); // Time slot hovered
@@ -30,23 +32,38 @@ export function Event() {
     data: timeSlots,
     isLoading: slotsLoading,
     error: slotsError,
-  } = useTimeSlot(event?.id);
+  } = useTimeSlot(event);
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>{error.message}</p>;
   if (!event) return <p>No event</p>;
 
-  const weekDayTimeCalendar = timeSlots && (
-    <WeekDayTimeCalendar
-      event={event}
-      timeSlots={loadTimeSlotToCalendar(timeSlots)}
-      setTimeSlot={setTimeSlot}
-    />
-  );
+  const getCalendarType = () => {
+    if (!timeSlots || !event) return null;
+    switch (event.type) {
+      case "weekdayTime":
+        return WeekDayTimeCalendar;
+      case "dayTime":
+        return DayTimeCalendar;
+      default:
+        return null;
+    }
+  };
 
-  const editWeekDayTimeCalendar = editUser && (
-    <EditRoot event={event} user={editUser} setEditUser={setEditUser} />
-  );
+  const getCalendar = () => {
+    const CalendarComponent = getCalendarType();
+    if (!CalendarComponent || !timeSlots) return;
+    return (
+      <CalendarComponent
+        event={event}
+        timeSlots={loadTimeSlotToCalendar(timeSlots)}
+        setTimeSlot={setTimeSlot}
+        calendarProps={{}}
+      />
+    );
+  };
+
+  const calendarType = getCalendarType();
 
   const timeSlotInfo = timeSlot && (
     <TimeSlotInfo timeSlot={timeSlot} event={event} />
@@ -57,17 +74,24 @@ export function Event() {
   return (
     <div className="flex flex-col h-screen pt-10">
       <div className="text-center flex flex-col gap-2">
-        <h1 className="text-xl font-bold text-center">{event.name}</h1>
+        <h1 className="text-[30px] font-bold text-center">{event.name}</h1>
         <p className="text-sm text-gray-500">
           Invite others to join using the link &nbsp;
           <CopyLinkButton url={eventUrl} />
         </p>
       </div>
-      {editUser && editWeekDayTimeCalendar}
+      {editUser && calendarType && (
+        <EditRoot
+          Calendar={calendarType}
+          event={event}
+          user={editUser}
+          setEditUser={setEditUser}
+        />
+      )}
 
       {!editUser && (
         <div className="grid grid-cols-3 gap-4 text-center p-10">
-          <div className="col-span-2">{weekDayTimeCalendar}</div>
+          <div className="col-span-2">{getCalendar()}</div>
           <div className="col-span-1">
             {timeSlot ? (
               timeSlotInfo
