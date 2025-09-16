@@ -27,7 +27,7 @@ export const CopyLinkButton = ({ url }: CopyLinkButtonProps) => {
   return (
     <Button
       variant="secondary"
-      className="underline underline-offset-4 font-semibold text-xs text-gray-700 decoration-gray-300 px-3"
+      className="underline underline-offset-4 font-semibold text-sm text-gray-700 decoration-gray-300 px-3"
       onClick={handleCopy}
     >
       {trimUrl()}

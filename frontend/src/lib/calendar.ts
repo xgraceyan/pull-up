@@ -1,7 +1,6 @@
 import moment from "moment";
 import {
   momentLocalizer,
-  type CalendarProps,
   type NavigateAction,
   type Event as RBCEvent,
   type SlotInfo,
@@ -9,6 +8,7 @@ import {
 } from "react-big-calendar";
 import type { TimeSlotStatus } from "./timeslot";
 import type { Event, EventType } from "./event";
+import type { BaseCalendarProps } from "@/components/calendar/BaseCalendar";
 
 export const localizer = momentLocalizer(moment);
 
@@ -46,12 +46,7 @@ export type TimeSlotEventWrapperProps = {
   children: React.ReactNode;
 };
 
-export type CalendarComponent = React.ComponentType<{
-  event: Event;
-  timeSlots: TimeSlotEvent[];
-  calendarProps: Partial<CalendarProps<TimeSlotEvent, object>> | undefined;
-  setTimeSlot?: (value: React.SetStateAction<TimeSlotEvent | null>) => void;
-}>;
+export type CalendarComponent = React.ComponentType<BaseCalendarProps>;
 
 export function dayToNum(day: DayOfWeek): number {
   return DayOfWeekMap[day];
@@ -231,5 +226,27 @@ export function handleNavigateFactory(
         );
       }
     }
+  };
+}
+
+export function customDayPropGetter(
+  disabledDates: Date[],
+  disabledClassName: string
+) {
+  return (date: Date) => {
+    const isDisabled = disabledDates.some((d) =>
+      moment(date).startOf("day").isSame(d, "day")
+    );
+    if (isDisabled) {
+      return {
+        className: disabledClassName,
+        style: {
+          cursor: "not-allowed",
+          pointerEvents: "none",
+          userSelect: "none",
+        } as React.CSSProperties,
+      };
+    }
+    return { className: "text-gray-600" };
   };
 }

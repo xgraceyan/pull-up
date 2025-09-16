@@ -1,10 +1,7 @@
-import type { Event, EventType } from "@/lib/event";
-import { useEffect, useRef, useState } from "react";
-import type { Calendar, CalendarProps, SlotInfo } from "react-big-calendar";
-import { WeekDayTimeCalendar } from "../WeekDayTimeCalendar/WeekDayTimeCalendar";
+import type { Event } from "@/lib/event";
+import { useRef } from "react";
+import type { SlotInfo } from "react-big-calendar";
 import type { User } from "@/lib/user";
-import { useTimeSlotByUser } from "@/hooks/useTimeSlot";
-import { loadTimeSlotToCalendar } from "@/lib/timeslot";
 import {
   addSlots,
   findTimeSlotInSelection,

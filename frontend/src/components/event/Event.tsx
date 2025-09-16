@@ -1,27 +1,18 @@
 import { useEvent } from "@/hooks/useEvent";
 import { useParams } from "react-router-dom";
 import { WeekDayTimeCalendar } from "../calendar/WeekDayTimeCalendar/WeekDayTimeCalendar";
-import { useTimeSlot, useUsersByWeekDayTime } from "@/hooks/useTimeSlot";
+import { useTimeSlot } from "@/hooks/useTimeSlot";
 import { loadTimeSlotToCalendar } from "@/lib/timeslot";
 import { useState } from "react";
-import {
-  dateToTimeString,
-  dateToWeekDay,
-  DAYS_OF_WEEK,
-  formatTime,
-  type CalendarComponent,
-  type TimeSlotEvent,
-} from "@/lib/calendar";
-import moment from "moment";
-import { getAllUsersFromId, type User } from "@/lib/user";
-import { EditCalendar } from "../calendar/EditCalendar/EditCalendar";
+import { type TimeSlotEvent } from "@/lib/calendar";
+import { type User } from "@/lib/user";
 import { EditRoot } from "../calendar/EditCalendar/EditRoot";
 import { TimeSlotInfo } from "./TimeSlotInfo";
 import { UserInfo } from "../user/UserInfo";
-import { Button } from "../ui/button";
 import { CopyLinkButton } from "../ui/CopyLinkButton";
 import { DayTimeCalendar } from "../calendar/DayTimeCalendar/DayTimeCalendar";
 import { DayCalendar } from "../calendar/DayCalendar/DayCalendar";
+import { BaseCalendar } from "../calendar/BaseCalendar";
 
 export function Event() {
   const [timeSlot, setTimeSlot] = useState<TimeSlotEvent | null>(null); // Time slot hovered
@@ -49,7 +40,7 @@ export function Event() {
       case "day":
         return DayCalendar;
       default:
-        return null;
+        return BaseCalendar;
     }
   };
 

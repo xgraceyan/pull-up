@@ -1,6 +1,6 @@
 import { localizer, type TimeSlotEvent } from "@/lib/calendar";
 import type { Event } from "@/lib/event";
-import { useMemo, useState, type ComponentType } from "react";
+import { useMemo, type ComponentType } from "react";
 import {
   Calendar,
   type CalendarProps,
@@ -8,14 +8,15 @@ import {
   type EventWrapperProps,
 } from "react-big-calendar";
 import { EventWrapper } from "./EventWrapper";
+import "./calendar.css";
 
-interface BaseCalendarProps {
+export interface BaseCalendarProps {
   event: Event;
   timeSlots: TimeSlotEvent[];
   setTimeSlot?: (value: React.SetStateAction<TimeSlotEvent | null>) => void;
   calendarProps?: Partial<CalendarProps<TimeSlotEvent>>;
-  format: string;
-  wrapperClasses: string;
+  format?: string;
+  wrapperClasses?: string;
 }
 
 export const BaseCalendar = ({
@@ -23,7 +24,7 @@ export const BaseCalendar = ({
   timeSlots,
   setTimeSlot,
   calendarProps,
-  format,
+  format = "EEE MMM dd",
   wrapperClasses,
 }: BaseCalendarProps) => {
   const formats = useMemo(
@@ -34,7 +35,10 @@ export const BaseCalendar = ({
     []
   );
 
-  const eventWrapper = EventWrapper({ wrapperClasses, setTimeSlot });
+  const eventWrapper = EventWrapper({
+    wrapperClasses: wrapperClasses || "",
+    setTimeSlot,
+  });
 
   return (
     <div className={`h-[600px] ${event.type}-calendar`}>
@@ -44,7 +48,6 @@ export const BaseCalendar = ({
         endAccessor="end"
         events={timeSlots}
         defaultDate={event.startDate}
-        onNavigate={handleNavigate}
         min={event.startTime}
         max={event.endTime}
         step={30}
@@ -69,6 +72,9 @@ export const BaseCalendar = ({
                 0.9 * (timeSlotEvent.userIds.length / event.userIds.length),
             },
           };
+        }}
+        slotPropGetter={() => {
+          return { className: "text-gray-500" };
         }}
       />
     </div>

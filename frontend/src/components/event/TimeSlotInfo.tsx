@@ -1,11 +1,6 @@
-import {
-  formatSlotInfoTime,
-  formatTime,
-  type TimeSlotEvent,
-} from "@/lib/calendar";
+import { formatSlotInfoTime, type TimeSlotEvent } from "@/lib/calendar";
 import type { Event } from "@/lib/event";
-import { getAllUsersFromId, type User } from "@/lib/user";
-import moment from "moment";
+import { getAllUsersFromId } from "@/lib/user";
 import { Separator } from "../ui/separator";
 
 interface TimeSlotInfoProps {
