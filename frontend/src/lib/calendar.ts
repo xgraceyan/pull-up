@@ -194,7 +194,7 @@ export function handleNavigateFactory(
 ) {
   if (event.type === "weekdayTime") return;
 
-  return (newDate: Date, view: View, action: NavigateAction) => {
+  return (_newDate: Date, _view: View, action: NavigateAction) => {
     const mode = event.type === "dayTime" ? "week" : "month";
 
     if (action === "NEXT") {

@@ -6,11 +6,7 @@ import {
 import { fetchUsersByWeekDayTime } from "@/api/users";
 import type { DayOfWeek } from "@/lib/calendar";
 import type { Event, EventType } from "@/lib/event";
-import {
-  type BaseTimeSlot,
-  type TimeSlot,
-  type TimeSlotPayload,
-} from "@/lib/timeslot";
+import { type TimeSlot, type TimeSlotPayload } from "@/lib/timeslot";
 import { type User } from "@/lib/user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 

@@ -20,11 +20,7 @@ export function Event() {
   const { urlAlias } = useParams();
   const { data: event, isLoading, error } = useEvent(urlAlias);
 
-  const {
-    data: timeSlots,
-    isLoading: slotsLoading,
-    error: slotsError,
-  } = useTimeSlot(event);
+  const { data: timeSlots } = useTimeSlot(event);
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>{error.message}</p>;

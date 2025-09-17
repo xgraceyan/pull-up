@@ -1,5 +1,5 @@
 import { timeStringToDate } from "@/lib/calendar";
-import type { Event, EventPayload, EventRaw, EventType } from "@/lib/event";
+import type { Event, EventPayload, EventRaw } from "@/lib/event";
 import { apiFetch } from "./apiUtils";
 import moment from "moment";
 

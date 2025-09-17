@@ -1,6 +1,5 @@
 import {
   convertRawTimeslots,
-  type BaseTimeSlot,
   type TimeSlot,
   type TimeSlotPayload,
   type TimeSlotRaw,

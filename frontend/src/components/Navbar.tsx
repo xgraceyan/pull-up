@@ -1,13 +1,10 @@
 import {
   NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
-  NavigationMenuViewport,
 } from "@/components/ui/navigation-menu";
+
 export const Navbar = () => {
   return (
     <div className="flex px-10 fixed top-0 left-0 w-full bg-transparent z-10">
