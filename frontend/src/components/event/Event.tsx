@@ -1,5 +1,5 @@
 import { useEvent } from "@/hooks/useEvent";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { WeekDayTimeCalendar } from "../calendar/WeekDayTimeCalendar/WeekDayTimeCalendar";
 import { useTimeSlot } from "@/hooks/useTimeSlot";
 import { loadTimeSlotToCalendar } from "@/lib/timeslot";
@@ -15,16 +15,25 @@ import { DayCalendar } from "../calendar/DayCalendar/DayCalendar";
 import { BaseCalendar } from "../calendar/BaseCalendar";
 
 export function Event() {
+  const navigate = useNavigate();
   const [timeSlot, setTimeSlot] = useState<TimeSlotEvent | null>(null); // Time slot hovered
   const [editUser, setEditUser] = useState<User | null>(null);
   const { urlAlias } = useParams();
   const { data: event, isLoading, error } = useEvent(urlAlias);
 
-  const { data: timeSlots } = useTimeSlot(event);
+  const {
+    data: timeSlots,
+    isLoading: slotsLoading,
+    error: slotsError,
+  } = useTimeSlot(event);
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>{error.message}</p>;
-  if (!event) return <p>No event</p>;
+  if (isLoading || slotsLoading) return <p>Loading...</p>;
+  if (!event || error || slotsError) {
+    console.log(error, slotsError);
+
+    navigate("/error");
+    return;
+  }
 
   const getCalendarType = () => {
     if (!timeSlots || !event) return null;

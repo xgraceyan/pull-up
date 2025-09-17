@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { handleSessionClear, useSessionState } from "@/hooks/useSessionState";
 import { useDeleteUser } from "@/hooks/useUser";
+import { useNavigate } from "react-router-dom";
 
 interface EditRootProps {
   Calendar: CalendarComponent;
@@ -26,6 +27,7 @@ export const EditRoot = ({
   user,
   setEditUser,
 }: EditRootProps) => {
+  const navigate = useNavigate();
   const {
     data: timeSlots,
     isLoading: slotsLoading,
@@ -88,8 +90,10 @@ export const EditRoot = ({
   };
 
   if (slotsLoading) return <p>Loading...</p>;
-  if (slotsError) return <p>{slotsError.message}</p>;
-  if (!event) return <p>No event</p>;
+  if (!event || slotsError) {
+    navigate("/error");
+    return;
+  }
 
   return (
     <div className="grid grid-cols-3 gap-4 text-center p-10">
