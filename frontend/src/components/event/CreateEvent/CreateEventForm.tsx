@@ -18,7 +18,7 @@ import { DayForm } from "./DayForm";
 
 export const CreateEventForm = () => {
   return (
-    <div className="flex w-full max-w-sm flex-col">
+    <div className="flex w-full max-w-md flex-col">
       <Card>
         <Tabs defaultValue="weekdayTime">
           <div className="flex justify-center">
