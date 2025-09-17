@@ -29,8 +29,6 @@ export function Event() {
 
   if (isLoading || slotsLoading) return <p>Loading...</p>;
   if (!event || error || slotsError) {
-    console.log(error, slotsError);
-
     navigate("/error");
     return;
   }
