@@ -1,4 +1,3 @@
-import type { CalendarType } from "@/calendar/CalendarType";
 import {
   combineDayAndTime,
   combineWeekDayAndTime,
@@ -63,8 +62,6 @@ export type TimeSlotPayload = {
 export function convertRawTimeslots<T extends EventType>(
   rawTimeSlots: TimeSlotRaw[]
 ): TimeSlot<T>[] {
-  console.log("Raw", rawTimeSlots);
-
   return rawTimeSlots.map((rawTimeSlot: TimeSlotRaw) => ({
     ...rawTimeSlot,
     date: (rawTimeSlot.date
