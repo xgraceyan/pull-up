@@ -33,6 +33,12 @@ public class EventController {
         }
     }
 
+    @GetMapping("/{urlAlias}/exists")
+    public ResponseEntity<Boolean> checkIfUrlAliasExists(@PathVariable String urlAlias) {
+        Optional<Event> event = eventService.getByUrlAlias(urlAlias);
+        return ResponseEntity.ok(event.isPresent());
+    }
+
     @PostMapping("/create")
     public ResponseEntity<Event> createEvent(@RequestBody EventRequest eventRequest) {
         // TODO: Make event request
