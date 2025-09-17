@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { WeekDayTimeCalendar } from "../calendar/WeekDayTimeCalendar/WeekDayTimeCalendar";
 import { useTimeSlot } from "@/hooks/useTimeSlot";
 import { loadTimeSlotToCalendar } from "@/lib/timeslot";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type TimeSlotEvent } from "@/lib/calendar";
 import { type User } from "@/lib/user";
 import { EditRoot } from "../calendar/EditCalendar/EditRoot";
@@ -28,11 +28,14 @@ export function Event() {
     error: slotsError,
   } = useTimeSlot(event);
 
+  useEffect(() => {
+    if (!isLoading && (error || !event)) {
+      navigate("/error");
+    }
+  }, [isLoading, error, event, navigate]);
+
+  if (!event || error || slotsError) return null;
   if (isLoading || slotsLoading) return <p>Loading...</p>;
-  if (!event || error || slotsError) {
-    navigate("/error");
-    return;
-  }
 
   const getCalendarType = () => {
     if (!timeSlots || !event) return null;

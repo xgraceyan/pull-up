@@ -90,11 +90,14 @@ export const EditRoot = ({
     setCurrTimeSlots([]);
   };
 
+  useEffect(() => {
+    if (!slotsLoading && (slotsError || !timeSlots)) {
+      navigate("/error");
+    }
+  }, [slotsLoading, slotsError, navigate]);
+
+  if (slotsError || !timeSlots) return null;
   if (slotsLoading) return <p>Loading...</p>;
-  if (!event || slotsError) {
-    navigate("/error");
-    return;
-  }
 
   return (
     <div className="grid grid-cols-3 gap-4 text-center p-10">

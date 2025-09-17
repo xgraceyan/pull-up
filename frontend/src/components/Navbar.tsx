@@ -4,6 +4,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
+import { GoToEventDialog } from "./event/GoToEventDialog";
 
 export const Navbar = () => {
   return (
@@ -22,6 +23,15 @@ export const Navbar = () => {
           <NavigationMenuItem>
             <NavigationMenuLink href="/">Home</NavigationMenuLink>
           </NavigationMenuItem>
+          <GoToEventDialog
+            dialogTrigger={
+              <NavigationMenuItem>
+                <NavigationMenuLink className="cursor-pointer">
+                  Go To Event
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            }
+          />
           <NavigationMenuItem>
             <NavigationMenuLink
               href="https://github.com/xgraceyan/pull-up"
