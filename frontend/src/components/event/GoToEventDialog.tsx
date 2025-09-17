@@ -3,7 +3,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -24,8 +23,6 @@ export const GoToEventDialog = ({ dialogTrigger }: GoToEventDialogProps) => {
   const [urlAlias, setUrlAlias] = useState<string>("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("change");
-
     setUrlAlias(e.target.value);
   };
 

@@ -26,8 +26,6 @@ export const BaseCalendar = ({
   timeSlots,
   setTimeSlot,
   calendarProps,
-  disabledDates = [],
-  setDisabledDates,
   format = "EEE MMM dd",
   wrapperClasses,
 }: BaseCalendarProps) => {
