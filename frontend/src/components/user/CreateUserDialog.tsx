@@ -10,16 +10,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useCreateUser } from "@/hooks/useUser";
 import type { Event } from "@/lib/event";
 import type { User, UserPayload } from "@/lib/user";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,

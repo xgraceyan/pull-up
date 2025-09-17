@@ -3,7 +3,7 @@ import {
   createEvent,
   fetchEventFromUrl,
 } from "@/api/events";
-import { type Event, type EventPayload, type EventType } from "@/lib/event";
+import { type Event, type EventPayload } from "@/lib/event";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function useEvent(urlAlias?: string) {

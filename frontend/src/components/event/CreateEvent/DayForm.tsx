@@ -1,27 +1,9 @@
 import { Button } from "@/components/ui/button";
-import {
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { TimePicker } from "@/components/ui/TimePicker";
+import { CardContent, CardFooter } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { checkEventUrlExists } from "@/api/events";
 import {
   baseFormDefaultValues,
   BaseFormFields,
@@ -29,7 +11,7 @@ import {
   baseFormSchemaFields,
 } from "./BaseForm";
 import { DatePicker } from "@/components/ui/DatePicker";
-import { convertToEventPayload, type EventPayload } from "@/lib/event";
+import { convertToEventPayload } from "@/lib/event";
 import { useCreateEvent } from "@/hooks/useEvent";
 import { useNavigate } from "react-router-dom";
 
