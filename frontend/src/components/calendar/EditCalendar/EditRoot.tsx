@@ -2,7 +2,7 @@ import type { Event } from "@/lib/event";
 import { EditCalendar } from "./EditCalendar";
 import type { User } from "@/lib/user";
 import { useSetTimeSlots, useTimeSlotByUser } from "@/hooks/useTimeSlot";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { type CalendarComponent, type TimeSlotEvent } from "@/lib/calendar";
 import {
   convertToPayloadTimeslots,
@@ -28,6 +28,7 @@ export const EditRoot = ({
   setEditUser,
 }: EditRootProps) => {
   const navigate = useNavigate();
+  const [disabledDates, setDisabledDates] = useState<Date[]>([]);
   const {
     data: timeSlots,
     isLoading: slotsLoading,
@@ -104,6 +105,8 @@ export const EditRoot = ({
           user={user}
           currTimeSlots={currTimeSlots ?? []}
           setCurrTimeSlots={setCurrTimeSlots}
+          disabledDates={disabledDates}
+          setDisabledDates={setDisabledDates}
         />
       </div>
       <div className="col-span-1 flex flex-col gap-5">

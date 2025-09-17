@@ -12,14 +12,13 @@ export const DayTimeCalendar = ({
   format = "ddd, MMM D",
   ...rest
 }: BaseCalendarProps) => {
-  const { event } = rest;
+  const { event, disabledDates, setDisabledDates } = rest;
   const [currentDate, setCurrentDate] = useState<Date>(event.startDate);
-  const [disabledDates, setDisabledDates] = useState<Date[]>([]);
 
   useEffect(() => {
     disableRemainingDays(event.type, event.endDate, "NEXT", setDisabledDates);
     disableRemainingDays(event.type, event.startDate, "PREV", setDisabledDates);
-  }, [event.startDate, event.endDate]);
+  }, []);
 
   return (
     <>
@@ -32,7 +31,6 @@ export const DayTimeCalendar = ({
           date: currentDate,
           onNavigate: handleNavigateFactory(
             event,
-            currentDate,
             setCurrentDate,
             setDisabledDates
           ),

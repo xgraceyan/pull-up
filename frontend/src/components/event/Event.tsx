@@ -18,6 +18,7 @@ export function Event() {
   const navigate = useNavigate();
   const [timeSlot, setTimeSlot] = useState<TimeSlotEvent | null>(null); // Time slot hovered
   const [editUser, setEditUser] = useState<User | null>(null);
+  const [disabledDates, setDisabledDates] = useState<Date[]>([]);
   const { urlAlias } = useParams();
   const { data: event, isLoading, error } = useEvent(urlAlias);
 
@@ -56,6 +57,8 @@ export function Event() {
         timeSlots={loadTimeSlotToCalendar(timeSlots)}
         setTimeSlot={setTimeSlot}
         calendarProps={{}}
+        disabledDates={disabledDates}
+        setDisabledDates={setDisabledDates}
       />
     );
   };

@@ -83,6 +83,14 @@ export function dateToWeekDay(date: Date): DayOfWeek {
   return DAYS_OF_WEEK[date.getDay()];
 }
 
+export function normalizeDateToDayOnly(date: Date): number {
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  ).getTime();
+}
+
 export function formatTime(time: Date) {
   return moment(time).format("h:mm A");
 }
@@ -120,18 +128,31 @@ export function findTimeSlotInSelection(
   return timeSlot;
 }
 
+export function isDateDisabled(date: Date, disabledDates: Date[]) {
+  return disabledDates.some(
+    (d) =>
+      d.getFullYear() === date.getFullYear() &&
+      d.getMonth() === date.getMonth() &&
+      d.getDate() === date.getDate()
+  );
+}
+
 // Adds new timeslots to existing and returns their combined slots
 export function addSlots(
   userId: string,
   slotInfo: SlotInfo,
   timeSlots: TimeSlotEvent[],
-  eventType?: EventType
+  eventType?: EventType,
+  disabledDates?: Date[]
 ) {
   const newTimeSlots: TimeSlotEvent[] = [];
 
   for (const slot of slotInfo.slots) {
     if (slot.getTime() != slotInfo.end.getTime()) {
-      if (!findTimeSlotInSelection(slot, timeSlots)) {
+      if (
+        !findTimeSlotInSelection(slot, timeSlots) &&
+        (!disabledDates || !isDateDisabled(slot, disabledDates))
+      ) {
         let endTime = new Date(slot);
         endTime.setMinutes(slot.getMinutes() + 30);
         const newEvent: TimeSlotEvent = {
@@ -161,68 +182,91 @@ export function disableRemainingDays(
   eventType: EventType,
   date: Date,
   action: NavigateAction,
-  setDisabledDates: (value: React.SetStateAction<Date[]>) => void
+  setDisabledDates: (value: React.SetStateAction<Date[]>) => void,
+  newDate?: Date
 ) {
   if (eventType === "weekdayTime") return;
 
   const days: Date[] = [];
   const mode = eventType === "dayTime" ? "week" : "month";
 
+  // Disable "trailing" calendar dates from last/next month
+  if (mode === "month") {
+    const d = newDate?.getMonth() === date.getMonth() ? newDate : date;
+    const startOfMonth = moment(d).startOf("month");
+    const endOfMonth = moment(d).endOf("month");
+    const startCalendar = startOfMonth.clone().startOf("week");
+    const endCalendar = endOfMonth.clone().endOf("week");
+
+    let curr = startCalendar;
+    while (curr.isBefore(startOfMonth, "day")) {
+      days.push(curr.toDate());
+      curr.add(1, "day");
+    }
+    curr = endCalendar;
+    while (curr.isAfter(endOfMonth, "day")) {
+      days.push(curr.toDate());
+      curr.subtract(1, "day");
+    }
+  }
+
   if (action === "NEXT") {
-    const endOfWeek = moment(date).endOf(mode);
+    const endOfMode = moment(date).endOf(mode);
     let currDate = moment(date).clone();
-    while (currDate.isBefore(endOfWeek, "day")) {
+    while (currDate.isBefore(endOfMode, "day")) {
       currDate = currDate.add(1, "day").clone();
       days.push(currDate.toDate());
     }
   } else {
-    const startOfWeek = moment(date).startOf(mode);
+    const startOfMode = moment(date).startOf(mode);
     let currDate = moment(date).clone();
-    while (currDate.isAfter(startOfWeek, "day")) {
+    while (currDate.isAfter(startOfMode, "day")) {
       currDate = currDate.subtract(1, "day").clone();
       days.push(currDate.toDate());
     }
   }
-  setDisabledDates((prev) => [...prev, ...days]);
+
+  setDisabledDates(days);
 }
 
 export function handleNavigateFactory(
   event: Event,
-  currentDate: Date,
   setCurrentDate: (value: React.SetStateAction<Date>) => void,
   setDisabledDates: (value: React.SetStateAction<Date[]>) => void
 ) {
   if (event.type === "weekdayTime") return;
 
-  return (_newDate: Date, _view: View, action: NavigateAction) => {
+  return (newDate: Date, _view: View, action: NavigateAction) => {
     const mode = event.type === "dayTime" ? "week" : "month";
 
     if (action === "NEXT") {
-      const nextWeek = moment(currentDate).add(1, mode);
-      const nextWeekEnd = nextWeek.endOf(mode);
+      const next = moment(newDate).add(1, mode);
+      const nextEnd = next.endOf(mode);
 
-      if (nextWeekEnd.isSameOrBefore(event.endDate, "day")) {
-        setCurrentDate(nextWeek.toDate());
+      if (nextEnd.isSameOrBefore(event.endDate, "day")) {
+        setCurrentDate(next.toDate());
       } else {
         setCurrentDate(event.endDate);
         disableRemainingDays(
           event.type,
           event.endDate,
           action,
-          setDisabledDates
+          setDisabledDates,
+          newDate
         );
       }
     } else if (action === "PREV") {
-      const prevWeek = moment(currentDate).subtract(1, mode);
-      if (prevWeek.isSameOrAfter(event.startDate, "day")) {
-        setCurrentDate(prevWeek.toDate());
+      const prev = moment(newDate).subtract(1, mode);
+      if (prev.isSameOrAfter(event.startDate, "day")) {
+        setCurrentDate(prev.toDate());
       } else {
         setCurrentDate(event.startDate);
         disableRemainingDays(
           event.type,
           event.startDate,
           action,
-          setDisabledDates
+          setDisabledDates,
+          newDate
         );
       }
     }

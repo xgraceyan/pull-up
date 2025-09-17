@@ -5,6 +5,7 @@ import type { User } from "@/lib/user";
 import {
   addSlots,
   findTimeSlotInSelection,
+  normalizeDateToDayOnly,
   removeSlots,
   type CalendarComponent,
   type TimeSlotEvent,
@@ -18,6 +19,8 @@ interface EditCalendarProps {
   setCurrTimeSlots: (
     value: React.SetStateAction<TimeSlotEvent[] | null>
   ) => void;
+  disabledDates: Date[];
+  setDisabledDates: (value: React.SetStateAction<Date[]>) => void;
 }
 
 export const EditCalendar = ({
@@ -26,6 +29,8 @@ export const EditCalendar = ({
   user,
   currTimeSlots,
   setCurrTimeSlots,
+  disabledDates,
+  setDisabledDates,
 }: EditCalendarProps) => {
   const dragOriginRef = useRef<Date | null>(null);
 
@@ -38,7 +43,13 @@ export const EditCalendar = ({
     if (findTimeSlotInSelection(mouseDownSlot, currTimeSlots)) {
       selectResult = removeSlots(slotInfo, currTimeSlots);
     } else {
-      selectResult = addSlots(user.id, slotInfo, currTimeSlots);
+      selectResult = addSlots(
+        user.id,
+        slotInfo,
+        currTimeSlots,
+        event.type,
+        disabledDates
+      );
     }
 
     setCurrTimeSlots(selectResult);
@@ -53,13 +64,24 @@ export const EditCalendar = ({
       <Calendar
         event={event}
         timeSlots={currTimeSlots}
+        disabledDates={disabledDates}
+        setDisabledDates={setDisabledDates}
         calendarProps={{
           selectable: true,
           onSelectSlot: handleSelect,
           onSelectEvent: handleSelectEvent,
           onSelecting: (range) => {
             if (!dragOriginRef.current) dragOriginRef.current = range.start;
-            return true;
+
+            const start = normalizeDateToDayOnly(range.start);
+            const end = normalizeDateToDayOnly(range.end);
+
+            const isDisabled = disabledDates.some((d) => {
+              const day = normalizeDateToDayOnly(d);
+              return day >= start && day <= end;
+            });
+
+            return !isDisabled;
           },
           components: {
             eventWrapper: undefined,

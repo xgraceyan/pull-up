@@ -15,6 +15,8 @@ export interface BaseCalendarProps {
   timeSlots: TimeSlotEvent[];
   setTimeSlot?: (value: React.SetStateAction<TimeSlotEvent | null>) => void;
   calendarProps?: Partial<CalendarProps<TimeSlotEvent>>;
+  disabledDates: Date[];
+  setDisabledDates: (value: React.SetStateAction<Date[]>) => void;
   format?: string;
   wrapperClasses?: string;
 }
@@ -24,6 +26,8 @@ export const BaseCalendar = ({
   timeSlots,
   setTimeSlot,
   calendarProps,
+  disabledDates = [],
+  setDisabledDates,
   format = "EEE MMM dd",
   wrapperClasses,
 }: BaseCalendarProps) => {
